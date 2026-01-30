@@ -1,0 +1,222 @@
+"use client";
+
+import Form from "next/form";
+import { useState, useActionState } from "react";
+import {
+  Camera,
+  Mail,
+  Lock,
+  User,
+  Loader2,
+  X,
+  EyeOff,
+  Eye,
+} from "lucide-react";
+import signupAction, { FormState } from "@/actions/signupAction";
+const initialState: FormState = {
+  values: {
+    name: "",
+    email: "",
+    password: "",
+    photo: undefined,
+  },
+  errors: {},
+};
+
+const SignupForm = () => {
+  const [state, formAction, isPending] = useActionState(
+    signupAction,
+    initialState,
+  );
+  const [photo, setPhoto] = useState<File | null>(null);
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const removePhoto = () => {
+    setPhoto(null);
+  };
+
+  return (
+    <Form className="space-y-4" action={formAction}>
+      {/* Name Field */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">
+          Name
+        </label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <User size={18} className="text-slate-400" />
+          </div>
+          <input
+            type="text"
+            name="name"
+            placeholder="John Doe"
+            defaultValue={state.values.name}
+            className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 transition-all placeholder:text-slate-300 ${
+              state?.errors?.name
+                ? "border-red-500 focus:ring-red-200"
+                : "border-slate-200 focus:ring-slate-800 focus:border-transparent"
+            }`}
+          />
+        </div>
+        {state?.errors?.name && (
+          <p className="text-red-500 text-xs mt-1 ml-1">{state.errors.name}</p>
+        )}
+      </div>
+
+      {/* Email Field */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">
+          Email
+        </label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Mail size={18} className="text-slate-400" />
+          </div>
+          <input
+            type="email"
+            name="email"
+            placeholder="m@example.com"
+            className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 transition-all placeholder:text-slate-300 ${
+              state?.errors.email
+                ? "border-red-500 focus:ring-red-200"
+                : "border-slate-200 focus:ring-slate-800 focus:border-transparent"
+            }`}
+            defaultValue={state.values.email}
+          />
+        </div>
+        {state?.errors.email && (
+          <p className="text-red-500 text-xs mt-1 ml-1">{state.errors.email}</p>
+        )}
+      </div>
+
+      {/* Password Field */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">
+          Password
+        </label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Lock size={18} className="text-slate-400" />
+          </div>
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="********"
+            className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 transition-all placeholder:text-slate-300 ${
+              state?.errors.password
+                ? "border-red-500 focus:ring-red-200"
+                : "border-slate-200 focus:ring-slate-800 focus:border-transparent"
+            }`}
+            defaultValue={state.values.password}
+          />
+
+          {/* toggle button */}
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 cursor-pointer"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+
+        {/* {state?.errors.password ? (
+          <p className="text-red-500 text-xs mt-1 ml-1">
+            {state.errors.password}
+          </p>
+        ) : (
+          <p className="text-slate-400 text-xs mt-1 ml-1">
+            Must be at least 8 characters long.
+          </p>
+        )} */}
+
+        {state?.errors.password && (
+          <p className="text-red-500 text-xs mt-1 ml-1">
+            {state.errors.password}
+          </p>
+        )}
+      </div>
+
+      {/* Photo Upload Field */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">
+          Profile Photo
+        </label>
+
+        {!photo ? (
+          <label className="flex items-center justify-center w-full px-4 py-3 border border-slate-200 border-dashed rounded-lg cursor-pointer hover:bg-slate-50 transition-colors group">
+            <div className="flex items-center space-x-2">
+              <Camera
+                size={18}
+                className="text-slate-400 group-hover:text-slate-600"
+              />
+              <span className="text-sm text-slate-500 group-hover:text-slate-700">
+                Upload a photo
+              </span>
+            </div>
+            <input
+              type="file"
+              className="hidden"
+              accept="image/*"
+              name="photo"
+              onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+            />
+          </label>
+        ) : (
+          <div className="flex items-center justify-between w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded-lg">
+            <div className="flex items-center space-x-3 overflow-hidden">
+              <div className="h-8 w-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center shrink-0 text-slate-500">
+                <Camera size={16} />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-medium text-slate-700 truncate">
+                  {photo.name}
+                </span>
+                <span className="text-xs text-slate-400">
+                  {(photo.size / 1024).toFixed(1)} KB
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={removePhoto}
+              className="p-2 hover:bg-white hover:shadow-sm rounded-full text-slate-400 hover:text-red-500 transition-all"
+              title="Remove photo"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {state?.errors.photo && (
+        <p className="text-red-500 text-xs mt-1 ml-1">{state.errors.photo}</p>
+      )}
+
+      {state?.errors.general && (
+        <p className="text-red-500 text-xs mt-1 ml-1">{state.errors.general}</p>
+      )}
+
+      {/* Submit Button */}
+      <button
+        type="submit"
+        disabled={isPending}
+        className={`w-full bg-slate-900 hover:bg-black text-white font-medium py-2.5 rounded-lg transition-all shadow-lg shadow-slate-900/10 mt-2 flex items-center justify-center ${
+          isPending ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
+        }`}
+      >
+        {isPending ? (
+          <>
+            <Loader2 className="animate-spin mr-2 h-5 w-5" />
+            Processing...
+          </>
+        ) : (
+          "Create Account"
+        )}
+      </button>
+    </Form>
+  );
+};
+
+export default SignupForm;
