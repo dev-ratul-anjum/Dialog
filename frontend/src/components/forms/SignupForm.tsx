@@ -19,7 +19,6 @@ const initialState: FormState = {
     name: "",
     email: "",
     password: "",
-    photo: undefined,
   },
   errors: {},
 };
@@ -33,13 +32,7 @@ const SignupForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
   const photoRef = useRef<HTMLInputElement>(null);
-
-  const removePhoto = () => {
-    setPhoto(null);
-    if (photoRef.current) {
-      photoRef.current = null;
-    }
-  };
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const handleFormSubmit = (formData: FormData) => {
     if (photo) {
@@ -49,12 +42,41 @@ const SignupForm = () => {
     return formAction(formData);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const MAX_FILE_SIZE = 0.1 * 1024 * 1024; // 100kb
+    const allowed_types = ["image/png", "image/jpeg", "image/jpg"];
+    const selectedFile = e.target.files?.[0];
+
+    setPhoto(selectedFile ?? null);
+
+    if (selectedFile) {
+      if (!allowed_types.includes(selectedFile.type)) {
+        setFileError("Only JPG, JPEG, and PNG image files are allowed.");
+        return;
+      }
+
+      if (selectedFile.size > MAX_FILE_SIZE) {
+        setFileError("Image must be under 100 KB");
+        return;
+      }
+    }
+  };
+
+  const removePhoto = () => {
+    setPhoto(null);
+    setFileError(null);
+    if (photoRef.current) {
+      photoRef.current.value = "";
+    }
+  };
+
   return (
     <Form className="space-y-4" action={handleFormSubmit}>
       {/* Name Field */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">
           Name
+          <span className="text-red-500 ml-1">*</span>
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -81,6 +103,7 @@ const SignupForm = () => {
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">
           Email
+          <span className="text-red-500 ml-1">*</span>
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -107,6 +130,7 @@ const SignupForm = () => {
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">
           Password
+          <span className="text-red-500 ml-1">*</span>
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -154,9 +178,7 @@ const SignupForm = () => {
           accept="image/*"
           name="photo"
           ref={photoRef}
-          onChange={(e) => {
-            setPhoto(e.target.files?.[0] ?? null);
-          }}
+          onChange={(e) => handleFileChange(e)}
         />
 
         {!photo ? (
@@ -175,7 +197,13 @@ const SignupForm = () => {
             </div>
           </label>
         ) : (
-          <div className="flex items-center justify-between w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded-lg">
+          <div
+            className={`flex items-center justify-between w-full px-4 py-3 border rounded-lg transition-colors ${
+              fileError
+                ? "border-red-500 bg-red-50"
+                : "border-slate-200 bg-slate-50"
+            }`}
+          >
             <div className="flex items-center space-x-3 overflow-hidden">
               <div className="h-8 w-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center shrink-0 text-slate-500">
                 <Camera size={16} />
@@ -192,7 +220,7 @@ const SignupForm = () => {
             <button
               type="button"
               onClick={removePhoto}
-              className="p-2 hover:bg-white hover:shadow-sm rounded-full text-slate-400 hover:text-red-500 transition-all"
+              className="p-2 hover:bg-white hover:shadow-sm rounded-full text-slate-400 hover:text-red-500 transition-all cursor-pointer"
               title="Remove photo"
             >
               <X size={18} />
@@ -201,8 +229,8 @@ const SignupForm = () => {
         )}
       </div>
 
-      {state?.errors.photo && (
-        <p className="text-red-500 text-xs mt-1 ml-1">{state.errors.photo}</p>
+      {fileError && (
+        <p className="text-red-500 text-xs mt-1 ml-1">{fileError}</p>
       )}
 
       {state?.errors.general && (
@@ -212,9 +240,11 @@ const SignupForm = () => {
       {/* Submit Button */}
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || !!fileError}
         className={`w-full bg-slate-900 hover:bg-black text-white font-medium py-2.5 rounded-lg transition-all shadow-lg shadow-slate-900/10 mt-2 flex items-center justify-center ${
-          isPending ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
+          isPending || !!fileError
+            ? "opacity-70 cursor-not-allowed"
+            : "cursor-pointer"
         }`}
       >
         {isPending ? (

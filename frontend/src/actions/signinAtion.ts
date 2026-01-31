@@ -1,27 +1,22 @@
 "use server";
 
-import { signupSchema } from "@/schema/signupSchema";
+import { forwardCookie } from "@/lib/cookies";
+import { signinSchema } from "@/schema/signinSchema";
 import { redirect } from "next/navigation";
 
-const signupAction = async (prevState: FormState, formData: FormData) => {
+const signinAction = async (prevState: FormState, formData: FormData) => {
   const rowData = {
-    name: String(formData.get("name") || ""),
     email: String(formData.get("email") || ""),
     password: String(formData.get("password") || ""),
   };
 
-  const photoEntry = formData.get("photo");
-  const photo =
-    photoEntry instanceof File && photoEntry.size > 0 ? photoEntry : undefined;
-
   const values = {
-    name: rowData.name,
     email: rowData.email,
     password: rowData.password,
   };
 
   // Zod validation
-  const parsed = signupSchema.safeParse(rowData);
+  const parsed = signinSchema.safeParse(rowData);
 
   if (!parsed.success) {
     const errors: NonNullable<FormState["errors"]> = {};
@@ -34,21 +29,26 @@ const signupAction = async (prevState: FormState, formData: FormData) => {
   }
 
   //   Send to backend
-  const backendForm = new FormData();
-  backendForm.append("name", parsed.data.name);
-  backendForm.append("email", parsed.data.email);
-  backendForm.append("password", parsed.data.password);
-
-  if (photo) backendForm.append("photo", photo);
-
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/v1/user/register`,
-      {
-        method: "POST",
-        body: backendForm,
+    const response = await fetch(`${process.env.BACKEND_URL}/v1/auth/login`, {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({
+        ...parsed.data,
+      }),
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+    });
+
+    // Forward backend Set-Cookie to browser
+
+    const setCookieHeader = response.headers.get("set-cookie");
+
+    if (setCookieHeader) {
+      await forwardCookie(setCookieHeader);
+    }
+
     const result = await response.json();
 
     if (!result.success) {
@@ -76,13 +76,12 @@ const signupAction = async (prevState: FormState, formData: FormData) => {
   redirect("/");
 };
 
-export default signupAction;
+export default signinAction;
 
 export type FormState = {
   values: {
-    name: string;
     email: string;
     password: string;
   };
-  errors: Partial<Record<"name" | "email" | "password" | "general", string>>;
+  errors: Partial<Record<"email" | "password" | "general", string>>;
 };
