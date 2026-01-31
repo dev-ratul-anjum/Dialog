@@ -10,8 +10,10 @@ const signupAction = async (prevState: FormState, formData: FormData) => {
     password: String(formData.get("password") || ""),
   };
 
-  const photoEntry = formData.get("photo"); // string | File | null
-  const photo = photoEntry instanceof File ? photoEntry : undefined;
+  const photoEntry = formData.get("photo");
+
+  const photo =
+    photoEntry instanceof File && photoEntry.size > 0 ? photoEntry : undefined;
 
   const values = {
     name: rowData.name,
@@ -33,20 +35,20 @@ const signupAction = async (prevState: FormState, formData: FormData) => {
     return { values, errors };
   }
 
-  console.log("serveraction photo: ", photo);
   //  File validation
   if (photo) {
-    if (!photo.type.startsWith("image/")) {
+    const allowed_types = ["image/png", "image/jpeg", "image/jpg"];
+    if (!allowed_types.includes(photo.type)) {
       return {
         values,
-        errors: { photo: "Only image files allowed" },
+        errors: { photo: "Only JPG, JPEG, and PNG image files are allowed." },
       };
     }
 
     if (photo.size > 0.1 * 1024 * 1024) {
       return {
         values,
-        errors: { photo: "Image must be under 100kb" },
+        errors: { photo: "Image must be under 100 KB" },
       };
     }
   }
@@ -68,12 +70,18 @@ const signupAction = async (prevState: FormState, formData: FormData) => {
       },
     );
     const result = await response.json();
+
     if (!result.success) {
       const errors: FormState["errors"] = {};
-      result.errors?.forEach((error: { path: string; message: string }) => {
-        const field = error.path as keyof FormState["errors"];
-        errors[field] = error.message;
-      });
+
+      if (result?.errors?.length > 0) {
+        result.errors?.forEach((error: { path: string; message: string }) => {
+          const field = error.path as keyof FormState["errors"];
+          errors[field] = error.message;
+        });
+      } else {
+        errors.general = result?.message;
+      }
 
       return { values, errors };
     }
@@ -81,7 +89,7 @@ const signupAction = async (prevState: FormState, formData: FormData) => {
     const errors: FormState["errors"] = {
       general: error instanceof Error ? error.message : "Something went wrong",
     };
-    console.log(error);
+
     return { values, errors };
   }
 

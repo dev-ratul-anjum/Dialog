@@ -1,7 +1,7 @@
 "use client";
 
 import Form from "next/form";
-import { useState, useActionState } from "react";
+import { useState, useActionState, useRef } from "react";
 import {
   Camera,
   Mail,
@@ -13,6 +13,7 @@ import {
   Eye,
 } from "lucide-react";
 import signupAction, { FormState } from "@/actions/signupAction";
+
 const initialState: FormState = {
   values: {
     name: "",
@@ -28,16 +29,28 @@ const SignupForm = () => {
     signupAction,
     initialState,
   );
-  const [photo, setPhoto] = useState<File | null>(null);
 
   const [showPassword, setShowPassword] = useState(false);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const photoRef = useRef<HTMLInputElement>(null);
 
   const removePhoto = () => {
     setPhoto(null);
+    if (photoRef.current) {
+      photoRef.current = null;
+    }
+  };
+
+  const handleFormSubmit = (formData: FormData) => {
+    if (photo) {
+      formData.set("photo", photo);
+    }
+
+    return formAction(formData);
   };
 
   return (
-    <Form className="space-y-4" action={formAction}>
+    <Form className="space-y-4" action={handleFormSubmit}>
       {/* Name Field */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">
@@ -121,16 +134,6 @@ const SignupForm = () => {
           </button>
         </div>
 
-        {/* {state?.errors.password ? (
-          <p className="text-red-500 text-xs mt-1 ml-1">
-            {state.errors.password}
-          </p>
-        ) : (
-          <p className="text-slate-400 text-xs mt-1 ml-1">
-            Must be at least 8 characters long.
-          </p>
-        )} */}
-
         {state?.errors.password && (
           <p className="text-red-500 text-xs mt-1 ml-1">
             {state.errors.password}
@@ -144,8 +147,23 @@ const SignupForm = () => {
           Profile Photo
         </label>
 
+        <input
+          id="photo-input"
+          type="file"
+          className="hidden"
+          accept="image/*"
+          name="photo"
+          ref={photoRef}
+          onChange={(e) => {
+            setPhoto(e.target.files?.[0] ?? null);
+          }}
+        />
+
         {!photo ? (
-          <label className="flex items-center justify-center w-full px-4 py-3 border border-slate-200 border-dashed rounded-lg cursor-pointer hover:bg-slate-50 transition-colors group">
+          <label
+            htmlFor="photo-input"
+            className="flex items-center justify-center w-full px-4 py-3 border border-slate-200 border-dashed rounded-lg cursor-pointer hover:bg-slate-50 transition-colors group"
+          >
             <div className="flex items-center space-x-2">
               <Camera
                 size={18}
@@ -155,13 +173,6 @@ const SignupForm = () => {
                 Upload a photo
               </span>
             </div>
-            <input
-              type="file"
-              className="hidden"
-              accept="image/*"
-              name="photo"
-              onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
-            />
           </label>
         ) : (
           <div className="flex items-center justify-between w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded-lg">
