@@ -7,6 +7,7 @@ import {
   createJwtToken,
   setAuthCookie,
 } from "$/utils/authHelpers.js";
+import { prisma } from "$/prisma/prisma.js";
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const user = await authService.loginUser(req.body);
@@ -29,9 +30,29 @@ const logoutUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getCurrentUser = catchAsync(async (req: Request, res: Response) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: req.user?.email,
+    },
+    select: {
+      name: true,
+      email: true,
+      photo: true,
+    },
+  });
+
+  responseHandler(res, 200, {
+    success: true,
+    message: "User info retrive successfull.",
+    data: user,
+  });
+});
+
 const authController = {
   loginUser,
   logoutUser,
+  getCurrentUser,
 };
 
 export default authController;

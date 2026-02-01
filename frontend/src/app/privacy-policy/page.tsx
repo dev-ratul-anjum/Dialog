@@ -1,4 +1,5 @@
-export default function PrivacyPolicyPage() {
+const PrivacyPolicyPage = async () => {
+  "use cache";
   return (
     <main className="mx-auto max-w-3xl px-4 py-16 text-gray-800">
       <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
@@ -63,4 +64,6 @@ export default function PrivacyPolicyPage() {
       </section>
     </main>
   );
-}
+};
+
+export default PrivacyPolicyPage;

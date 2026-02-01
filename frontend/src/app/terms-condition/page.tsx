@@ -1,4 +1,5 @@
-export default function TermsAndConditionsPage() {
+const TermsAndConditionsPage = async () => {
+  "use cache";
   return (
     <main className="mx-auto max-w-3xl px-4 py-16 text-gray-800">
       <h1 className="text-3xl font-bold mb-6">Terms & Conditions</h1>
@@ -57,4 +58,6 @@ export default function TermsAndConditionsPage() {
       </section>
     </main>
   );
-}
+};
+
+export default TermsAndConditionsPage;
