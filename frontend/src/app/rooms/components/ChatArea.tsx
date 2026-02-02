@@ -19,7 +19,7 @@ const ChatArea = () => {
       <div className="pointer-events-none absolute inset-0 z-[-1] bg-[#efeae2]/90"></div>
 
       {/* Chat Header */}
-      <header className="z-10 flex h-[60px] w-full items-center justify-between border-b border-[#e9edef] bg-[#f0f2f5] px-4 py-2">
+      <header className="z-10 flex h-15 w-full items-center justify-between border-b border-[#e9edef] bg-[#f0f2f5] px-4 py-2">
         <div
           className="flex cursor-pointer items-center gap-3" /* onClick="toggleInfoPanel()" */
         >
@@ -239,7 +239,7 @@ const ChatArea = () => {
       </section>
 
       {/* Chat Input Footer - Semantic: <footer> */}
-      <footer className="z-10 flex min-h-[60px] w-full items-center gap-4 bg-[#f0f2f5] px-4 py-2">
+      <footer className="z-10 flex min-h-15 w-full items-center gap-4 bg-[#f0f2f5] px-4 py-2">
         <button className="text-[#54656f] hover:text-[#111b21]">
           <Plus className="h-6 w-6" />
         </button>

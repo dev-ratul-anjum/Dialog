@@ -2,7 +2,7 @@ import Link from "next/link";
 import SocialAuth from "@/components/auth/SocialAuth";
 import AuthFooter from "@/components/auth/AuthFooter";
 import AuthBranding from "@/components/auth/AuthBranding";
-import LoginForm from "@/components/forms/LoginForm";
+import LoginForm from "@/app/login/components/LoginForm";
 
 const LoginPage = () => {
   return (

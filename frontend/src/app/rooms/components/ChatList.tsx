@@ -7,19 +7,22 @@ import {
   UserIcon,
   VolumeX,
 } from "lucide-react";
+import Link from "next/link";
 
 const ChatList = () => {
   return (
     <aside
       id="chat-list-panel"
-      className="absolute z-10 flex h-full w-full flex-col border-r border-[#e9edef] bg-white transition-transform duration-300 md:relative md:w-[350px] lg:w-[400px]"
+      className="absolute z-10 flex h-full w-full flex-col border-r border-[#e9edef] bg-white transition-transform duration-300 md:relative md:w-87.5 lg:w-100"
     >
       {/* Header */}
-      <header className="flex h-[60px] items-center justify-between bg-white px-4 py-2">
+      <header className="flex h-15 items-center justify-between bg-white px-4 py-2">
         <h1 className="text-2xl font-bold tracking-tight">Chats</h1>
         <div className="flex gap-3 text-[#54656f]">
           <button>
-            <SquarePen className="h-5 w-5" />
+            <Link prefetch={false} href="/add-chat">
+              <SquarePen className="h-5 w-5" />
+            </Link>
           </button>
           <button>
             <ListFilter className="h-5 w-5" />

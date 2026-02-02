@@ -17,10 +17,10 @@ const ContactInfo = () => {
   return (
     <aside
       id="contact-info-panel"
-      className="relative z-20 hidden h-full w-[350px] flex-col border-l border-[#e9edef] bg-white transition-transform duration-300 lg:flex lg:translate-x-0 lg:w-[400px]"
+      className="relative z-20 hidden h-full w-87.5 flex-col border-l border-[#e9edef] bg-white transition-transform duration-300 lg:flex lg:translate-x-0 lg:w-100"
     >
       {/* Header */}
-      <header className="flex h-[60px] items-center gap-4 border-b border-[#e9edef] bg-[#f0f2f5] px-4">
+      <header className="flex h-15 items-center gap-4 border-b border-[#e9edef] bg-[#f0f2f5] px-4">
         <button
           /* onClick="toggleInfoPanel()" */ className="text-[#54656f] lg:hidden"
         >
