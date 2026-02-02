@@ -73,7 +73,7 @@ const signupAction = async (prevState: FormState, formData: FormData) => {
     return { values, errors };
   }
 
-  redirect("/");
+  redirect("/rooms");
 };
 
 export default signupAction;
