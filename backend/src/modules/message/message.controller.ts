@@ -1,0 +1,44 @@
+import { Request, Response } from "express";
+import catchAsync from "$/utils/catchAsync.js";
+import responseHandler from "$/utils/responseHandler.js";
+import { ApiError } from "$/middlewares/errorHandler.js";
+import messageService from "./message.service.js";
+import { uploadMultipleToCloudinary } from "$/utils/fileUploader.js";
+
+const createMessage = catchAsync(async (req: Request, res: Response) => {
+  const senderId = req.user?.id!;
+  const files = req.files as Express.Multer.File[];
+  let attachments: string[] = [];
+
+  if (files.length > 0) {
+    const resuljs = await uploadMultipleToCloudinary(files);
+    const urls = resuljs.map((r) => r.secure_url);
+    attachments = urls;
+  }
+  await messageService.createMessage(req.body, senderId, attachments);
+  return responseHandler(res, 201, {
+    success: true,
+    message: "Message created Successfully!",
+  });
+});
+
+const deleteMessage = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id!;
+  const messageId = req.params.messageId;
+
+  if (!messageId || typeof messageId !== "string") {
+    throw new ApiError(400, "Required parameters not provided");
+  }
+  await messageService.deleteMessage(userId, messageId);
+  return responseHandler(res, 200, {
+    success: true,
+    message: "Message deleted Successfully!",
+  });
+});
+
+const messageController = {
+  createMessage,
+  deleteMessage,
+};
+
+export default messageController;

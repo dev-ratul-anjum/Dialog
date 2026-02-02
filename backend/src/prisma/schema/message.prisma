@@ -1,0 +1,13 @@
+model Message {
+    id             String       @id @default(ulid())
+    text           String
+    attachments    String[]
+    senderId       String
+    sender         User         @relation("MessageSender", fields: [senderId], references: [id])
+    receiverId     String
+    receiver       User         @relation("MessageReceiver", fields: [receiverId], references: [id])
+    conversationId String
+    conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+    @@map("messages")
+}
