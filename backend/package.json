@@ -11,8 +11,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "prisma:generate": "prisma generate",
-    "prisma:db:push": "prisma db push",
-    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:push": "prisma db push",
+    "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"
   },
   "keywords": [],

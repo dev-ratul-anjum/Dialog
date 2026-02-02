@@ -1,0 +1,24 @@
+import validateSchema from "$/middlewares/validateSchema.js";
+import express from "express";
+import conversationController from "./conversation.controller.js";
+import { createConversationSchema } from "./conversation.schema.js";
+import checkAuth from "$/middlewares/checkAuth.js";
+
+const conversationRouter = express.Router();
+
+// Create Any Conversation
+conversationRouter.post(
+  "/create",
+  checkAuth,
+  validateSchema(createConversationSchema),
+  conversationController.createConversation,
+);
+
+// Delete Any Conversation
+conversationRouter.delete(
+  "/delete/:conversationId",
+  checkAuth,
+  conversationController.deleteConversation,
+);
+
+export default conversationRouter;

@@ -29,6 +29,7 @@ const checkAuth: RequestHandler = async (req, res, next) => {
     const user = await prisma.user.findUnique({
       where: { id: decodedUser.userId },
       select: {
+        id: true,
         name: true,
         email: true,
       },
