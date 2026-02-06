@@ -1,6 +1,7 @@
 import { prisma } from "$/prisma/prisma.js";
 import { TCreateConversationSchema } from "./conversation.schema.js";
 import { Prisma } from "$/prisma/generated/client.js";
+import { getRelativeTime } from "$/utils/dateFormatter.js";
 
 const createConversation = async (
   data: TCreateConversationSchema,
@@ -120,6 +121,7 @@ const getConversations = async (
         select: {
           text: true,
           updatedAt: true,
+          attachments: true,
         },
       });
 
@@ -131,7 +133,12 @@ const getConversations = async (
         participantName: otherUser.name,
         participantPhoto: otherUser.photo,
         lastMessage: message?.text ?? null,
-        lastMessageAt: message?.updatedAt ?? null,
+        lastMessageAt: message?.updatedAt
+          ? getRelativeTime(message.updatedAt)
+          : null,
+        ...(message && message.attachments.length > 0
+          ? { attachments: true }
+          : {}),
       };
     }),
   );

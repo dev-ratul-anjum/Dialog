@@ -43,7 +43,7 @@ const signupAction = async (prevState: FormState, formData: FormData) => {
 
   try {
     const response = await fetch(
-      `${process.env.BACKEND_URL}/user/v1/register`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/v1/register`,
       {
         method: "POST",
         body: backendForm,

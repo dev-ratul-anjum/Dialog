@@ -12,11 +12,14 @@ export const proxy = async (request: NextRequest) => {
   let cookieHeader = cookieStore.toString();
   cookieHeader = decodeURIComponent(cookieHeader);
 
-  const response = await fetch(`${process.env.BACKEND_URL}/auth/v1/me`, {
-    headers: {
-      Cookie: cookieHeader,
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/v1/me`,
+    {
+      headers: {
+        Cookie: cookieHeader,
+      },
     },
-  });
+  );
   const result = await response.json();
 
   if (result.success && isAuthPage) {
@@ -31,4 +34,11 @@ export const proxy = async (request: NextRequest) => {
   }
 
   return NextResponse.next();
+};
+
+export const config = {
+  matcher: [
+    // Skip all internal paths (_next)
+    "/((?!_next).*)",
+  ],
 };

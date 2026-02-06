@@ -1,3 +1,5 @@
+"use client";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import {
   CheckCheck,
   FileText,
@@ -7,234 +9,213 @@ import {
   UserIcon,
   VolumeX,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import { List, RowComponentProps } from "react-window";
+import SearchSkeleton from "./SearchSkeleton";
+import ChatRowSkeleton from "./ChatRowSkeleton";
+import HeaderSkeleton from "./HeaderSkeleton";
+import FiltersSkeleton from "./FiltersSkeleton";
+import useDebounce from "@/hooks/useDebounce";
+import NoConversationSkeleton from "./NoConversationSkeleton";
 
 const ChatList = () => {
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const [query, setQuery] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+
+  const debouncedSearchChange = useDebounce((value: string) => {
+    setDebouncedSearch(value);
+  }, 400);
+
+  const {
+    data,
+    fetchNextPage,
+    fetchPreviousPage,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
+    hasNextPage,
+    hasPreviousPage,
+  } = useInfiniteQuery({
+    queryKey: ["conversations", debouncedSearch],
+    queryFn: async ({ pageParam }) => {
+      const res = await fetch(
+        `/api/proxy/conversation/v1/all?page=${pageParam}&query=${debouncedSearch}`, // Proxy path
+        {
+          credentials: "include", // Still needed for proxy to get cookies
+        },
+      );
+      return res.json();
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.data.meta.hasNextPage) return undefined;
+      return lastPage.data.meta.nextPage;
+    },
+    getPreviousPageParam: (firstPage) => {
+      if (!firstPage.data.meta.hasPrevPage) return undefined;
+      return firstPage.data.meta.prevPage;
+    },
+  });
+
+  const items = data?.pages.flatMap((page) => page.data.conversations) || [];
+  const totalRow = data?.pages[0].data.meta.totalConversations || 0;
+  const isInitialLoading = !data;
+
+  const onRowsRender = ({
+    startIndex,
+    stopIndex,
+  }: {
+    startIndex: number;
+    stopIndex: number;
+  }) => {
+    if (stopIndex >= items.length && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+    if (startIndex <= 10 && hasPreviousPage && !isFetchingPreviousPage) {
+      fetchPreviousPage();
+    }
+  };
+
+  const conversation = ({ index, style }: RowComponentProps) => {
+    const isSelected = items[index].id === selectedChatId;
+    return (
+      <Link
+        href={`/rooms/${items[index].id}`}
+        style={style}
+        onClick={() => setSelectedChatId(items[index].id)}
+        className={`flex cursor-pointer items-center gap-3 border-b border-[#e9edef]/50 px-3 py-3 hover:bg-[#f0f2f5] transition ${isSelected && "bg-[#f0f2f5] group relative"}`}
+      >
+        {items[index].participantPhoto ? (
+          <Image
+            src={items[index].participantPhoto}
+            alt="User"
+            width={48}
+            height={48}
+            className="rounded-full object-cover"
+          />
+        ) : (
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-300 text-white">
+            <UserIcon className="h-6 w-6" />
+          </div>
+        )}
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline justify-between">
+            <h3 className="truncate text-base font-medium text-[#111b21]">
+              {items[index].participantName}
+            </h3>
+            <span className="text-xs text-[#667781]">
+              {items[index].lastMessageAt}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <p className="flex items-center gap-1 truncate text-sm text-[#667781]">
+              {items[index].attachments && (
+                <FileText className="h-4 w-4 text-red-500" />
+              )}
+              <span>
+                {items[index].lastMessage && items[index].lastMessage}
+              </span>
+            </p>
+          </div>
+        </div>
+      </Link>
+    );
+  };
+
   return (
     <aside
       id="chat-list-panel"
       className="absolute z-10 flex h-full w-full flex-col border-r border-[#e9edef] bg-white transition-transform duration-300 md:relative md:w-87.5 lg:w-100"
     >
       {/* Header */}
-      <header className="flex h-15 items-center justify-between bg-white px-4 py-2">
-        <h1 className="text-2xl font-bold tracking-tight">Chats</h1>
-        <div className="flex gap-3 text-[#54656f]">
-          <button>
-            <Link prefetch={false} href="/add-chat">
-              <SquarePen className="h-5 w-5" />
-            </Link>
-          </button>
-          <button>
-            <ListFilter className="h-5 w-5" />
-          </button>
-        </div>
-      </header>
+      {isInitialLoading ? (
+        <HeaderSkeleton />
+      ) : (
+        <header className="flex h-15 items-center justify-between bg-white px-4 py-2">
+          <h1 className="text-2xl font-bold tracking-tight">Chats</h1>
+          <div className="flex gap-3 text-[#54656f]">
+            <button>
+              <Link prefetch={false} href="/add-chat">
+                <SquarePen className="h-5 w-5" />
+              </Link>
+            </button>
+            <button>
+              <ListFilter className="h-5 w-5" />
+            </button>
+          </div>
+        </header>
+      )}
 
       {/* Search Bar */}
-      <div className="px-3 pb-2">
-        <div className="flex h-9 items-center rounded-lg bg-[#f0f2f5] px-3">
-          <Search className="h-5 w-5 cursor-pointer text-[#54656f]" />
-          <input
-            type="text"
-            placeholder="Search or start a new chat"
-            className="ml-4 w-full border-none bg-transparent text-sm outline-none placeholder-[#667781]"
-          />
+      {isInitialLoading ? (
+        <SearchSkeleton />
+      ) : (
+        <div className="px-3 pb-2">
+          <div className="flex h-9 items-center rounded-lg bg-[#f0f2f5] px-3">
+            <Search className="h-5 w-5 cursor-pointer text-[#54656f]" />
+            <input
+              type="text"
+              placeholder="Search or start a new chat"
+              value={query}
+              onChange={(e) => {
+                const text = e.target.value;
+                setQuery(text);
+                debouncedSearchChange(text);
+              }}
+              className="ml-4 w-full border-none bg-transparent text-sm outline-none placeholder-[#667781]"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Filters */}
-      <div className="scrollbar-hide flex gap-2 overflow-x-auto px-3 py-2">
-        <button className="whitespace-nowrap rounded-full bg-[#00a884]/10 px-3 py-1 text-xs font-medium text-[#00a884]">
-          All
-        </button>
-        <button className="whitespace-nowrap rounded-full bg-[#f0f2f5] px-3 py-1 text-xs font-medium text-[#667781] hover:bg-gray-200">
-          Unread
-        </button>
-        <button className="whitespace-nowrap rounded-full bg-[#f0f2f5] px-3 py-1 text-xs font-medium text-[#667781] hover:bg-gray-200">
-          Favourites
-        </button>
-        <button className="whitespace-nowrap rounded-full bg-[#f0f2f5] px-3 py-1 text-xs font-medium text-[#667781] hover:bg-gray-200">
-          Groups
-        </button>
-      </div>
+      {isInitialLoading ? (
+        <FiltersSkeleton />
+      ) : (
+        <div className="scrollbar-hide flex gap-2 overflow-x-auto px-3 py-2">
+          <button className="whitespace-nowrap rounded-full bg-[#00a884]/10 px-3 py-1 text-xs font-medium text-[#00a884]">
+            All
+          </button>
+          <button className="whitespace-nowrap rounded-full bg-[#f0f2f5] px-3 py-1 text-xs font-medium text-[#667781] hover:bg-gray-200">
+            Unread
+          </button>
+          <button className="whitespace-nowrap rounded-full bg-[#f0f2f5] px-3 py-1 text-xs font-medium text-[#667781] hover:bg-gray-200">
+            Favourites
+          </button>
+          <button className="whitespace-nowrap rounded-full bg-[#f0f2f5] px-3 py-1 text-xs font-medium text-[#667781] hover:bg-gray-200">
+            Groups
+          </button>
+        </div>
+      )}
 
       {/* Chat List Items */}
       <div className="custom-scrollbar flex-1 overflow-y-auto">
-        {/* Chat Item 1 (Active) */}
-        <div
-          /* onClick={() => selectChat(this, 'Abu Sayeed')} */
-          className="group relative flex cursor-pointer items-center gap-3 border-b border-[#e9edef]/50 bg-[#f0f2f5] px-3 py-3 hover:bg-[#f0f2f5]"
-        >
-          <img
-            src="https://i.pravatar.cc/150?u=1"
-            alt="User"
-            className="h-12 w-12 rounded-full object-cover"
-          />
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline justify-between">
-              <h3 className="truncate text-base font-medium text-[#111b21]">
-                Abu Sayeed
-              </h3>
-              <span className="text-xs text-[#667781]">17:51</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="flex items-center gap-1 truncate text-sm text-[#667781]">
-                <span>Hmm</span>
-              </p>
-            </div>
-          </div>
-        </div>
+        {isInitialLoading ? (
+          Array.from({ length: 8 }).map((_, i) => <ChatRowSkeleton key={i} />)
+        ) : (
+          <>
+            <List
+              rowComponent={conversation}
+              rowCount={totalRow}
+              rowHeight={73}
+              rowProps={{}}
+              onRowsRendered={onRowsRender}
+              overscanCount={10}
+            />
 
-        {/* Chat Item 2 */}
-        <div
-          /* onClick={() => selectChat(this, 'Boro Vaiya')} */
-          className="flex cursor-pointer items-center gap-3 border-b border-[#e9edef]/50 px-3 py-3 transition hover:bg-[#f0f2f5]"
-        >
-          <img
-            src="https://i.pravatar.cc/150?u=2"
-            alt="User"
-            className="h-12 w-12 rounded-full object-cover"
-          />
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline justify-between">
-              <h3 className="truncate text-base font-medium text-[#111b21]">
-                Boro Vaiya
-              </h3>
-              <span className="text-xs text-[#667781]">22:18</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="flex items-center gap-1 truncate text-sm text-[#667781]">
-                <CheckCheck className="h-4 w-4 text-blue-400" />
-                <span>kortechi</span>
-              </p>
-            </div>
-          </div>
-        </div>
+            {isFetchingNextPage && (
+              <>
+                <ChatRowSkeleton />
+                <ChatRowSkeleton />
+              </>
+            )}
+          </>
+        )}
 
-        {/* Chat Item 3 */}
-        <div
-          /* onClick={() => selectChat(this, 'CSE-16')} */
-          className="flex cursor-pointer items-center gap-3 border-b border-[#e9edef]/50 px-3 py-3 transition hover:bg-[#f0f2f5]"
-        >
-          <img
-            src="https://i.pravatar.cc/150?u=3"
-            alt="Group"
-            className="h-12 w-12 rounded-full object-cover"
-          />
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline justify-between">
-              <h3 className="truncate text-base font-medium text-[#111b21]">
-                CSE-16
-              </h3>
-              <span className="text-xs text-[#667781]">21:12</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="truncate text-sm text-[#667781]">
-                +880 1895-252098 turned off advanced...
-              </p>
-              <VolumeX className="h-4 w-4 text-[#667781]" />
-            </div>
-          </div>
-        </div>
-
-        {/* Chat Item 4 */}
-        <div
-          /* onClick={() => selectChat(this, 'Cousin ❤️')} */
-          className="flex cursor-pointer items-center gap-3 border-b border-[#e9edef]/50 px-3 py-3 transition hover:bg-[#f0f2f5]"
-        >
-          <img
-            src="https://i.pravatar.cc/150?u=4"
-            alt="User"
-            className="h-12 w-12 rounded-full object-cover"
-          />
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline justify-between">
-              <h3 className="truncate text-base font-medium text-[#111b21]">
-                Cousin ❤️
-              </h3>
-              <span className="text-xs text-[#667781]">Tuesday</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="flex items-center gap-1 truncate text-sm text-[#667781]">
-                <FileText className="h-4 w-4 text-red-500" />
-                <span>Tech Mart: iTech Smart LTD All RP...</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Chat Item 5 */}
-        <div
-          /* onClick={() => selectChat(this, '+880 1518-739712')} */
-          className="flex cursor-pointer items-center gap-3 border-b border-[#e9edef]/50 px-3 py-3 transition hover:bg-[#f0f2f5]"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-300 text-white">
-            <UserIcon className="h-6 w-6" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline justify-between">
-              <h3 className="truncate text-base font-medium text-[#111b21]">
-                +880 1518-739712
-              </h3>
-              <span className="text-xs text-[#667781]">Yesterday</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="flex items-center gap-1 truncate text-sm text-[#667781]">
-                <CheckCheck className="h-4 w-4 text-[#54656f]" />
-                <span>This ache</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Chat Item 6 */}
-        <div
-          /* onClick={() => selectChat(this, 'Python Shikhe Web Dev')} */
-          className="flex cursor-pointer items-center gap-3 border-b border-[#e9edef]/50 px-3 py-3 transition hover:bg-[#f0f2f5]"
-        >
-          <img
-            src="https://i.pravatar.cc/150?u=6"
-            alt="User"
-            className="h-12 w-12 rounded-full object-cover"
-          />
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline justify-between">
-              <h3 className="truncate text-base font-medium text-[#111b21]">
-                Python Shikhe Web Dev...
-              </h3>
-              <span className="text-xs text-[#667781]">22:27</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="flex items-center gap-1 truncate text-sm text-[#667781]">
-                <span>+880 1752-183114 joined via invite link</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Chat Item 7 (You) */}
-        <div
-          /* onClick={() => selectChat(this, '+880 1799-742945 (You)')} */
-          className="flex cursor-pointer items-center gap-3 border-b border-[#e9edef]/50 px-3 py-3 transition hover:bg-[#f0f2f5]"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-300 text-white">
-            <UserIcon className="h-6 w-6" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline justify-between">
-              <h3 className="truncate text-base font-medium text-[#111b21]">
-                +880 1799-742945 (You)
-              </h3>
-              <span className="text-xs text-[#667781]">Monday</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="flex items-center gap-1 truncate text-sm text-[#667781]">
-                <CheckCheck className="h-4 w-4 text-blue-400" />
-                <span>VMA@.3Ptu8PTT3X</span>
-              </p>
-            </div>
-          </div>
-        </div>
+        {items.length === 0 && !isInitialLoading && <NoConversationSkeleton />}
       </div>
     </aside>
   );

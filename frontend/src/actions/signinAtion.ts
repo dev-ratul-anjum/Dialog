@@ -30,16 +30,19 @@ const signinAction = async (prevState: FormState, formData: FormData) => {
 
   //   Send to backend
   try {
-    const response = await fetch(`${process.env.BACKEND_URL}/auth/v1/login`, {
-      method: "POST",
-      credentials: "include",
-      body: JSON.stringify({
-        ...parsed.data,
-      }),
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/v1/login`,
+      {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify({
+          ...parsed.data,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
 
     // Forward backend Set-Cookie to browser
 
