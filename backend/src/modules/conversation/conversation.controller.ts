@@ -26,9 +26,27 @@ const deleteConversation = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// Get Conversations
+const getConversations = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id!;
+  const { query, page } = req.query;
+  const options: { query?: string; page?: number } = {};
+
+  if (query && typeof query === "string") options.query = query;
+  if (page && typeof page === "string")
+    options.page = !isNaN(Number(page)) ? Number(page) : undefined;
+
+  const data = await conversationService.getConversations(userId, options);
+  return responseHandler(res, 200, {
+    success: true,
+    message: "Conversations retrive Successfully!",
+    data,
+  });
+});
 const conversationController = {
   createConversation,
   deleteConversation,
+  getConversations,
 };
 
 export default conversationController;

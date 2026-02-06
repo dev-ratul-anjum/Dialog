@@ -30,7 +30,7 @@ const signinAction = async (prevState: FormState, formData: FormData) => {
 
   //   Send to backend
   try {
-    const response = await fetch(`${process.env.BACKEND_URL}/v1/auth/login`, {
+    const response = await fetch(`${process.env.BACKEND_URL}/auth/v1/login`, {
       method: "POST",
       credentials: "include",
       body: JSON.stringify({

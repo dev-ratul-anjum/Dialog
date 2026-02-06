@@ -23,7 +23,10 @@ const getUsersForAddNewChat = catchAsync(
     if (!query || typeof query !== "string") {
       throw new ApiError(400, "Required query not provided");
     }
-    const pageNumber = typeof page === "string" ? Number(page) : undefined;
+    const pageNumber =
+      typeof page === "string" && !isNaN(Number(page))
+        ? Number(page)
+        : undefined;
 
     const userId = req.user?.id;
 

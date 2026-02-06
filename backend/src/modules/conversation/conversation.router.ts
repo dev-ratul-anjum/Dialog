@@ -21,4 +21,11 @@ conversationRouter.delete(
   conversationController.deleteConversation,
 );
 
+// Get All Conversations
+conversationRouter.get(
+  "/v1/all",
+  checkAuth,
+  conversationController.getConversations,
+);
+
 export default conversationRouter;
