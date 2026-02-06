@@ -8,15 +8,15 @@ const authRouter = express.Router();
 
 // Login Any User
 authRouter.post(
-  "/login",
+  "/v1/login",
   validateSchema(loginUserSchema),
   authController.loginUser,
 );
 
 // Logout Any User
-authRouter.post("/logout", checkAuth, authController.logoutUser);
+authRouter.post("/v1/logout", checkAuth, authController.logoutUser);
 
 // Get Current User
-authRouter.get("/me", checkAuth, authController.getCurrentUser);
+authRouter.get("/v1/me", checkAuth, authController.getCurrentUser);
 
 export default authRouter;

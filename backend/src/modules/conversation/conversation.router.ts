@@ -8,7 +8,7 @@ const conversationRouter = express.Router();
 
 // Create Any Conversation
 conversationRouter.post(
-  "/create",
+  "/v1/create",
   checkAuth,
   validateSchema(createConversationSchema),
   conversationController.createConversation,
@@ -16,7 +16,7 @@ conversationRouter.post(
 
 // Delete Any Conversation
 conversationRouter.delete(
-  "/delete/:conversationId",
+  "/v1/delete/:conversationId",
   checkAuth,
   conversationController.deleteConversation,
 );

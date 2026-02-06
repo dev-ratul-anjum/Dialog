@@ -6,9 +6,9 @@ import messageRouter from "./modules/message/message.router.js";
 
 const appRouter = express.Router();
 
-appRouter.use("/v1/auth", authRouter);
-appRouter.use("/v1/user", userRouter);
-appRouter.use("/v1/conversation", conversationRouter);
-appRouter.use("/v1/message", messageRouter);
+appRouter.use("/auth", authRouter);
+appRouter.use("/user", userRouter);
+appRouter.use("/conversation", conversationRouter);
+appRouter.use("/message", messageRouter);
 
 export default appRouter;

@@ -9,7 +9,7 @@ const messageRouter = express.Router();
 
 // Create Any message
 messageRouter.post(
-  "/create",
+  "/v1/create",
   checkAuth,
   uploader(
     ["image/png", "image/jpeg", "image/jpg"],
@@ -23,7 +23,7 @@ messageRouter.post(
 
 // Delete Any message
 messageRouter.delete(
-  "/delete/:messageId",
+  "/v1/delete/:messageId",
   checkAuth,
   messageController.deleteMessage,
 );
