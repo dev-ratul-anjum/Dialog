@@ -49,7 +49,6 @@ const ChatList = () => {
       if (!firstPage.data.meta.hasPrevPage) return undefined;
       return firstPage.data.meta.prevPage;
     },
-    staleTime: 5_000,
     gcTime: 5 * 60_000,
   });
 

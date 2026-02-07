@@ -17,6 +17,7 @@ const NewChatForm = () => {
   const [query, setQuery] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   const debouncedSearchChange = useDebounce((value: string) => {
     setDebouncedSearch(value);
@@ -77,6 +78,10 @@ const NewChatForm = () => {
   }, []);
 
   const handleAddConversation = async (selectedUserId: string) => {
+    if (isCreating) return;
+
+    setIsCreating(true);
+
     const res = await addConversation(selectedUserId);
 
     if (res.success) {
@@ -85,6 +90,9 @@ const NewChatForm = () => {
           "bg-[#00875F] text-white rounded-md shadow-md px-4 py-2 text-sm",
         progressClassName: "bg-white/50",
       });
+      setIsCreating(false);
+      setSelectedUserId(null);
+      setQuery("");
 
       redirect(`/rooms/${res.conversationId}`);
     } else {
@@ -93,6 +101,9 @@ const NewChatForm = () => {
           "bg-[#C53030] text-white rounded-md shadow-md px-4 py-2 text-sm",
         progressClassName: "bg-white/50",
       });
+      setIsCreating(false);
+      setSelectedUserId(null);
+      setQuery("");
     }
   };
 
@@ -127,15 +138,15 @@ const NewChatForm = () => {
 
         {/* 2. Add Button */}
         <button
-          disabled={!selectedUserId}
-          className="w-full rounded-md bg-[#008069] py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#006d59] disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none"
+          disabled={!selectedUserId || isCreating}
+          className="w-full rounded-md bg-[#008069] py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#006d59] cursor-pointer disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none"
           onClick={() => {
             if (selectedUserId) {
               handleAddConversation(selectedUserId);
             }
           }}
         >
-          ADD CHAT
+          {isCreating ? "ADDING..." : "ADD CHAT"}
         </button>
       </div>
 
