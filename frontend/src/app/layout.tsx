@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Ubuntu } from "next/font/google";
 import Providers from "@/components/Providers";
+import GlobalToast from "@/components/GlobalToast";
 
 const ubuntu = Ubuntu({
   subsets: ["latin"],
@@ -16,7 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={ubuntu.className}>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <GlobalToast />
+        </Providers>
       </body>
     </html>
   );

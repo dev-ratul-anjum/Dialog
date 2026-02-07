@@ -1,7 +1,101 @@
-import { ArrowLeft, MessageCircle, UserIcon } from "lucide-react";
+"use client";
+import ChatRowSkeleton from "@/components/ChatRowSkeleton";
+import useDebounce from "@/hooks/useDebounce";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { List } from "react-window";
+import NoContactsFound from "./NoContactsFound";
+import NoSearchYet from "./NoSearchYet";
+import addConversation from "@/actions/addConversation";
+import UserRow from "./UserRow";
+import { toast } from "react-toastify";
+import { redirect } from "next/navigation";
 
 const NewChatForm = () => {
+  const [query, setQuery] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+
+  const debouncedSearchChange = useDebounce((value: string) => {
+    setDebouncedSearch(value);
+  }, 400);
+
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    fetchPreviousPage,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
+    hasNextPage,
+    hasPreviousPage,
+  } = useInfiniteQuery({
+    queryKey: ["contacts", debouncedSearch],
+    queryFn: async ({ pageParam }) => {
+      const res = await fetch(
+        `/api/proxy/user/v1/chats/available-users?query=${query}&page=${pageParam}`,
+      );
+      return res.json();
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.data.meta.hasNextPage) return undefined;
+      return lastPage.data.meta.nextPage;
+    },
+    getPreviousPageParam: (firstPage) => {
+      if (!firstPage.data.meta.hasPrevPage) return undefined;
+      return firstPage.data.meta.prevPage;
+    },
+    enabled: query.length > 0,
+    gcTime: 5 * 60_000,
+  });
+
+  const items = data?.pages.flatMap((page) => page.data.users) || [];
+  const totalRow = items.length;
+
+  const onRowsRender = ({
+    startIndex,
+    stopIndex,
+  }: {
+    startIndex: number;
+    stopIndex: number;
+  }) => {
+    if (stopIndex + 10 >= items.length && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+    if (startIndex <= 10 && hasPreviousPage && !isFetchingPreviousPage) {
+      fetchPreviousPage();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      setQuery("");
+    };
+  }, []);
+
+  const handleAddConversation = async (selectedUserId: string) => {
+    const res = await addConversation(selectedUserId);
+
+    if (res.success) {
+      toast.success("Conversation created!", {
+        className:
+          "bg-[#00875F] text-white rounded-md shadow-md px-4 py-2 text-sm",
+        progressClassName: "bg-white/50",
+      });
+
+      redirect(`/rooms/${res.conversationId}`);
+    } else {
+      toast.error(res.message, {
+        className:
+          "bg-[#C53030] text-white rounded-md shadow-md px-4 py-2 text-sm",
+        progressClassName: "bg-white/50",
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header for context (optional but good for UX) */}
@@ -16,18 +110,31 @@ const NewChatForm = () => {
         {/* 1. Single Input Box */}
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-[#008069] ml-1">
-            Phone Number or Name
+            Email Address or Name
           </label>
           <input
             type="text"
-            //   defaultValue={SELECTED_USER_IN_ADD_CHAT} // Simulating selected user value appearing here
-            placeholder="Type contact name"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setSelectedUserId(null);
+              debouncedSearchChange(e.target.value);
+            }}
+            placeholder="Type name or email here"
             className="w-full border-b-2 border-[#008069] py-1 text-base outline-none focus:border-[#008069]"
           />
         </div>
 
         {/* 2. Add Button */}
-        <button className="w-full rounded-md bg-[#008069] py-2 text-sm font-medium text-white shadow-sm hover:bg-[#006d59] transition">
+        <button
+          disabled={!selectedUserId}
+          className="w-full rounded-md bg-[#008069] py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#006d59] disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none"
+          onClick={() => {
+            if (selectedUserId) {
+              handleAddConversation(selectedUserId);
+            }
+          }}
+        >
           ADD CHAT
         </button>
       </div>
@@ -35,59 +142,34 @@ const NewChatForm = () => {
       {/* 3. List of filtered users */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         <div className="px-4 py-2 text-xs font-medium text-[#008069] uppercase tracking-wide">
-          Contacts on WhatsApp
+          Contacts on Dialog
         </div>
 
-        {/* User Row: Existing Chat (Shows View Chat button) */}
-        <div className="flex items-center gap-3 px-4 py-3 hover:bg-[#f5f6f6] cursor-pointer group border-b border-[#e9edef]/50">
-          <img
-            src="https://i.pravatar.cc/150?u=user_existing"
-            alt="User"
-            className="h-10 w-10 rounded-full object-cover"
-          />
-          <div className="flex-1 min-w-0 flex justify-between items-center">
-            <div className="flex flex-col">
-              <span className="text-base text-[#111b21]">Boro Vaiya</span>
-              <span className="text-xs text-[#667781]">~Existing Chat</span>
-            </div>
-            {/* UI Behavior: Existing chat -> View Chat button */}
-            <button className="flex items-center gap-1 rounded-full bg-[#e9edef] px-3 py-1 text-xs font-medium text-[#008069] hover:bg-[#d1d7db]">
-              <MessageCircle className="h-3 w-3" />
-              View Chat
-            </button>
-          </div>
-        </div>
+        {!query ? (
+          <NoSearchYet />
+        ) : isLoading ? (
+          Array.from({ length: 8 }).map((_, i) => <ChatRowSkeleton key={i} />)
+        ) : items.length > 0 ? (
+          <>
+            <List
+              rowComponent={UserRow}
+              rowCount={totalRow}
+              rowHeight={65}
+              rowProps={{ items, selectedUserId, setSelectedUserId, setQuery }}
+              onRowsRendered={onRowsRender}
+              overscanCount={10}
+            />
 
-        {/* User Row: Selected (Value appears in input) */}
-        {/* Visually indicating selection with a background color */}
-        <div className="flex items-center gap-3 px-4 py-3 bg-[#e9edef] cursor-pointer border-b border-[#e9edef]/50">
-          <img
-            src="https://i.pravatar.cc/150?u=user_selected"
-            alt="User"
-            className="h-10 w-10 rounded-full object-cover"
-          />
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-col">
-              <span className="text-base text-[#111b21] font-medium">
-                {/* {SELECTED_USER_IN_ADD_CHAT} */}
-              </span>
-              <span className="text-xs text-[#667781]">~Selected</span>
-            </div>
-          </div>
-        </div>
-
-        {/* User Row: Standard */}
-        <div className="flex items-center gap-3 px-4 py-3 hover:bg-[#f5f6f6] cursor-pointer border-b border-[#e9edef]/50">
-          <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-white">
-            <UserIcon className="h-6 w-6" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-col">
-              <span className="text-base text-[#111b21]">+880 1632-203182</span>
-              <span className="text-xs text-[#667781]">Available</span>
-            </div>
-          </div>
-        </div>
+            {isFetchingNextPage && (
+              <>
+                <ChatRowSkeleton />
+                <ChatRowSkeleton />
+              </>
+            )}
+          </>
+        ) : (
+          <NoContactsFound />
+        )}
       </div>
     </div>
   );

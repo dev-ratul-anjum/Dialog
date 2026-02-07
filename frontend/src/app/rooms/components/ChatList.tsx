@@ -5,7 +5,7 @@ import { ListFilter, Search, SquarePen } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { List } from "react-window";
-import ChatRowSkeleton from "./ChatRowSkeleton";
+import ChatRowSkeleton from "../../../components/ChatRowSkeleton";
 import FiltersSkeleton from "./FiltersSkeleton";
 import useDebounce from "@/hooks/useDebounce";
 import NoConversationSkeleton from "./NoConversationSkeleton";
@@ -18,7 +18,7 @@ const ChatList = () => {
 
   const debouncedSearchChange = useDebounce((value: string) => {
     setDebouncedSearch(value);
-  }, 500);
+  }, 400);
 
   const {
     data,
@@ -97,7 +97,7 @@ const ChatList = () => {
           <Search className="h-5 w-5 cursor-pointer text-[#54656f]" />
           <input
             type="text"
-            placeholder="Search or start a new chat"
+            placeholder="Search by name or email address"
             value={query}
             onChange={(e) => {
               const text = e.target.value;

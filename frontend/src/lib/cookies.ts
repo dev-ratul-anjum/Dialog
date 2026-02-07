@@ -19,3 +19,15 @@ export async function forwardCookie(setCookieHeader: string) {
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
 }
+
+/**
+ * Reads all cookies from the request, converts them to a string,
+ * and decodes any URL-encoded characters.
+ *
+ * @returns {Promise<string>} Decoded cookie header string
+ */
+export async function getDecodedCookies(): Promise<string> {
+  const cookieStore = await cookies();
+  const cookieString = cookieStore.toString();
+  return decodeURIComponent(cookieString);
+}

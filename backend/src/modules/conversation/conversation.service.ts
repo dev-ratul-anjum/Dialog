@@ -7,12 +7,14 @@ const createConversation = async (
   data: TCreateConversationSchema,
   creatorId: string,
 ) => {
-  await prisma.conversation.create({
+  const newConversation = await prisma.conversation.create({
     data: {
       creatorId,
       participantId: data.participantId,
     },
   });
+
+  return newConversation.id;
 };
 
 const deleteConversation = async (userId: string, conversationId: string) => {

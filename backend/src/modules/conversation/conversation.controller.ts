@@ -6,10 +6,16 @@ import { ApiError } from "$/middlewares/errorHandler.js";
 
 const createConversation = catchAsync(async (req: Request, res: Response) => {
   const creatorId = req.user?.id!;
-  await conversationService.createConversation(req.body, creatorId);
+  const conversationId = await conversationService.createConversation(
+    req.body,
+    creatorId,
+  );
   return responseHandler(res, 201, {
     success: true,
     message: "Conversation created Successfully!",
+    data: {
+      conversationId,
+    },
   });
 });
 const deleteConversation = catchAsync(async (req: Request, res: Response) => {
