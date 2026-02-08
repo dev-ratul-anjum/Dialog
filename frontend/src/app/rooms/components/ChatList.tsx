@@ -62,7 +62,7 @@ const ChatList = () => {
     startIndex: number;
     stopIndex: number;
   }) => {
-    if (stopIndex >= items.length && hasNextPage && !isFetchingNextPage) {
+    if (stopIndex + 10 >= items.length && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
     if (startIndex <= 10 && hasPreviousPage && !isFetchingPreviousPage) {
@@ -129,7 +129,7 @@ const ChatList = () => {
       )}
 
       {/* Chat List Items */}
-      <div className="custom-scrollbar flex-1 overflow-y-auto">
+      <div className="flex-1 h-0">
         {isLoading ? (
           Array.from({ length: 8 }).map((_, i) => <ChatRowSkeleton key={i} />)
         ) : (
@@ -144,7 +144,8 @@ const ChatList = () => {
                 setSelectedChatId,
               }}
               onRowsRendered={onRowsRender}
-              overscanCount={10}
+              overscanCount={5}
+              className="custom-scrollbar"
             />
 
             {isFetchingNextPage && (
