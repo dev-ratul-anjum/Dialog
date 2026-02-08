@@ -42,12 +42,12 @@ const NewChatForm = () => {
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      if (!lastPage.data.meta.hasNextPage) return undefined;
-      return lastPage.data.meta.nextPage;
+      if (!lastPage?.data?.meta.hasNextPage) return undefined;
+      return lastPage?.data?.meta.nextPage;
     },
     getPreviousPageParam: (firstPage) => {
-      if (!firstPage.data.meta.hasPrevPage) return undefined;
-      return firstPage.data.meta.prevPage;
+      if (!firstPage?.data?.meta.hasPrevPage) return undefined;
+      return firstPage?.data?.meta.prevPage;
     },
     enabled: query.length > 0,
     gcTime: 5 * 60_000,

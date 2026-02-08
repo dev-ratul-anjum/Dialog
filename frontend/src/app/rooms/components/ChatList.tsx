@@ -42,12 +42,12 @@ const ChatList = () => {
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      if (!lastPage.data.meta.hasNextPage) return undefined;
-      return lastPage.data.meta.nextPage;
+      if (!lastPage?.data?.meta.hasNextPage) return undefined;
+      return lastPage?.data?.meta.nextPage;
     },
     getPreviousPageParam: (firstPage) => {
-      if (!firstPage.data.meta.hasPrevPage) return undefined;
-      return firstPage.data.meta.prevPage;
+      if (!firstPage?.data?.meta.hasPrevPage) return undefined;
+      return firstPage?.data?.meta.prevPage;
     },
     gcTime: 5 * 60_000,
   });
@@ -71,10 +71,7 @@ const ChatList = () => {
   };
 
   return (
-    <aside
-      id="chat-list-panel"
-      className="absolute z-10 flex h-full w-full flex-col border-r border-[#e9edef] bg-white transition-transform duration-300 md:relative md:w-87.5 lg:w-100"
-    >
+    <>
       {/* Header */}
       <header className="flex h-15 items-center justify-between bg-white px-4 py-2">
         <h1 className="text-2xl font-bold tracking-tight">Chats</h1>
@@ -159,7 +156,7 @@ const ChatList = () => {
 
         {items.length === 0 && !isLoading && <NoConversationSkeleton />}
       </div>
-    </aside>
+    </>
   );
 };
 

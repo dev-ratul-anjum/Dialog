@@ -1,16 +1,34 @@
-import ChatArea from "@/app/rooms/components/ChatArea";
-import ContactInfo from "@/app/rooms/components/ContactInfo";
+import ChatArea from "@/app/rooms/[roomId]/components/ChatArea";
+import ContactInfo from "@/app/rooms/[roomId]/components/ContactInfo";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { Suspense } from "react";
 
-const RoomPage = () => {
+const RoomPage = ({ params }: { params: Promise<{ roomId: string }> }) => {
   return (
     <>
-      {/* MAIN CHAT AREA */}
-      <ChatArea />
-
-      {/* CONTACT INFO PANEL */}
-      <ContactInfo />
+      <Suspense fallback={<LoadingSpinner />}>
+        <RoomContent params={params} />
+      </Suspense>
     </>
   );
 };
 
 export default RoomPage;
+
+const RoomContent = async ({ params }: RoomContentProps) => {
+  const { roomId } = await params;
+  console.log(roomId);
+  return (
+    <>
+      {/* MAIN CHAT AREA */}
+      <ChatArea>
+        {/* CONTACT INFO PANEL */}
+        <ContactInfo />
+      </ChatArea>
+    </>
+  );
+};
+
+interface RoomContentProps {
+  params: Promise<{ roomId: string }>;
+}
