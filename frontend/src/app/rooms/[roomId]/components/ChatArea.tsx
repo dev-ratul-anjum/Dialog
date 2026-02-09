@@ -1,6 +1,14 @@
 "use client";
 
-import { ArrowLeft, CheckCheck, Info, Search, Video, X } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCheck,
+  Info,
+  Phone,
+  Search,
+  Video,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
 import ChatInput from "./ChatInput";
@@ -48,9 +56,10 @@ const ChatArea = ({
             </div>
           </div>
           <div className="flex items-center gap-5 text-[#54656f]">
-            <button className="hidden rounded-full border border-gray-300 bg-white/50 px-3 py-1 text-xs font-medium shadow-sm sm:block">
-              Video call
+            <button>
+              <Phone className="h-4 w-4" />
             </button>
+
             <button>
               <Video className="h-5 w-5" />
             </button>

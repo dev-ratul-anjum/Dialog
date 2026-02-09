@@ -40,9 +40,33 @@ const deleteMessage = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getConversationMessages = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user?.id!;
+    const conversationId = req.params.conversationId;
+    const { page } = req.query;
+    const pageNumber = !isNaN(Number(page)) ? Number(page) : undefined;
+
+    if (!conversationId || typeof conversationId !== "string") {
+      throw new ApiError(400, "Required parameters not provided");
+    }
+    const data = await messageService.getConversationMessages(
+      userId,
+      conversationId,
+      pageNumber,
+    );
+    return responseHandler(res, 200, {
+      success: true,
+      message: "Messages retrive Successfully!",
+      data,
+    });
+  },
+);
+
 const messageController = {
   createMessage,
   deleteMessage,
+  getConversationMessages,
 };
 
 export default messageController;

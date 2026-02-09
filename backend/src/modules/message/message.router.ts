@@ -28,4 +28,11 @@ messageRouter.delete(
   messageController.deleteMessage,
 );
 
+// Get Conversation Messages
+messageRouter.get(
+  "/v1/get/:conversationId",
+  checkAuth,
+  messageController.getConversationMessages,
+);
+
 export default messageRouter;
