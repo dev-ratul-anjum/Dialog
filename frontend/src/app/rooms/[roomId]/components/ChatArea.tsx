@@ -1,26 +1,23 @@
 "use client";
 
-import {
-  ArrowLeft,
-  CheckCheck,
-  Info,
-  Mic,
-  Plus,
-  Search,
-  Smile,
-  Video,
-  X,
-} from "lucide-react";
+import { ArrowLeft, CheckCheck, Info, Search, Video, X } from "lucide-react";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
+import ChatInput from "./ChatInput";
 
-const ChatArea = ({ children }: { children: ReactNode }) => {
+const ChatArea = ({
+  children,
+  conversationId,
+}: {
+  children: ReactNode;
+  conversationId: string;
+}) => {
   const [showContactInfo, setShowContactInfo] = useState(false);
   return (
     <>
       <main
         id="main-chat-area"
-        className="relative z-0 flex h-full flex-1 flex-col bg-[#efeae2] bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-opacity-10"
+        className="relative z-0 flex h-full w-full flex-1 flex-col bg-[#efeae2] bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-opacity-10"
       >
         {/* Overlay for pattern contrast */}
         <div className="pointer-events-none absolute inset-0 z-[-1] bg-[#efeae2]/90"></div>
@@ -250,24 +247,10 @@ const ChatArea = ({ children }: { children: ReactNode }) => {
         </section>
 
         {/* Chat Input Footer - Semantic: <footer> */}
-        <footer className="z-10 flex min-h-15 w-full items-center gap-4 bg-[#f0f2f5] px-4 py-2">
-          <button className="text-[#54656f] hover:text-[#111b21]">
-            <Plus className="h-6 w-6" />
-          </button>
-          <div className="flex flex-1 items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-sm">
-            <button className="text-[#54656f]">
-              <Smile className="h-5 w-5" />
-            </button>
-            <input
-              type="text"
-              placeholder="Type a message"
-              className="flex-1 border-none text-sm outline-none placeholder-[#667781]"
-            />
-          </div>
-          <button className="text-[#54656f] hover:text-[#111b21]">
-            <Mic className="h-6 w-6" />
-          </button>
-        </footer>
+        <ChatInput
+          conversationId={conversationId}
+          receiverId="ed02e189-2721-4062-8af6-e7e6294ada2b"
+        />
       </main>
 
       {showContactInfo && (

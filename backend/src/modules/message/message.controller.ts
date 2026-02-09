@@ -10,7 +10,11 @@ const createMessage = catchAsync(async (req: Request, res: Response) => {
   const files = req.files as Express.Multer.File[];
   let attachments: string[] = [];
 
-  if (files.length > 0) {
+  if (files?.length < 1 && !req.body.text) {
+    throw new ApiError(400, "Text or attachments is required.");
+  }
+
+  if (files?.length > 0) {
     const resuljs = await uploadMultipleToCloudinary(files);
     const urls = resuljs.map((r) => r.secure_url);
     attachments = urls;

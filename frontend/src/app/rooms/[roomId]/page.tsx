@@ -17,11 +17,11 @@ export default RoomPage;
 
 const RoomContent = async ({ params }: RoomContentProps) => {
   const { roomId } = await params;
-  console.log(roomId);
+
   return (
     <>
       {/* MAIN CHAT AREA */}
-      <ChatArea>
+      <ChatArea conversationId={roomId}>
         {/* CONTACT INFO PANEL */}
         <ContactInfo />
       </ChatArea>

@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const createMessageSchema = z.object({
-  text: z.string("Text is required.").trim().nonempty("Text cannot be empty."),
+  text: z.string().trim().optional(),
   receiverId: z
     .string("Receiver id is required.")
     .trim()

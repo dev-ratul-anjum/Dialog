@@ -1,7 +1,7 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { ListFilter, Search, SquarePen } from "lucide-react";
+import { EllipsisVertical, Search, SquarePen } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { List } from "react-window";
@@ -82,7 +82,7 @@ const ChatList = () => {
             </Link>
           </button>
           <button>
-            <ListFilter className="h-5 w-5" />
+            <EllipsisVertical className="h-5 w-5" />
           </button>
         </div>
       </header>

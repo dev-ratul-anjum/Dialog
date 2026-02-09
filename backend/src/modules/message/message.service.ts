@@ -8,7 +8,7 @@ const createMessage = async (
 ) => {
   await prisma.message.create({
     data: {
-      text: data.text,
+      ...(data.text ? { text: data.text } : {}),
       attachments,
       senderId,
       receiverId: data.receiverId,

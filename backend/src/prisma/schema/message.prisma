@@ -1,6 +1,6 @@
 model Message {
     id             String       @id @default(ulid())
-    text           String
+    text           String?
     attachments    String[]
     senderId       String
     sender         User         @relation("MessageSender", fields: [senderId], references: [id])
