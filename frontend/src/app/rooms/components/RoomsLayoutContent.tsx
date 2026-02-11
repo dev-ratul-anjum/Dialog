@@ -22,7 +22,6 @@ const RoomsLayoutContent = ({
       {/* CHAT LIST PANEL */}
       <aside
         id="chat-list-panel"
-        // className="absolute z-10 flex h-full w-full flex-col border-r border-[#e9edef] bg-white transition-transform duration-300 md:relative md:w-87.5 lg:w-100"
         className={`absolute z-10 flex h-full w-full flex-col border-r border-[#e9edef] bg-white transition-transform duration-300 md:relative md:w-87.5 lg:w-100 ${isRoomPage ? "hidden md:flex" : "flex"}`}
       >
         <ChatList />
