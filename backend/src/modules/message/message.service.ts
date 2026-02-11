@@ -9,7 +9,7 @@ const createMessage = async (
   senderId: string,
   attachments: string[],
 ) => {
-  await prisma.message.create({
+  const newMessage = await prisma.message.create({
     data: {
       ...(data.text ? { text: data.text } : {}),
       attachments,
@@ -17,7 +17,19 @@ const createMessage = async (
       receiverId: data.receiverId,
       conversationId: data.conversationId,
     },
+    select: {
+      id: true,
+      text: true,
+      attachments: true,
+      senderId: true,
+      updatedAt: true,
+    },
   });
+
+  return {
+    ...newMessage,
+    updatedAt: formatContextualDateTime(newMessage.updatedAt),
+  };
 };
 
 const deleteMessage = async (userId: string, messageId: string) => {

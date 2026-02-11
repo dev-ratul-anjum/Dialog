@@ -1,8 +1,10 @@
 "use client";
 import addMessage from "@/actions/addMessage";
+import { useSocket } from "@/providers/SocketProvider";
 import { Loader2, Plus, SendHorizontal, Smile, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const ChatInput = ({
   receiverId,
@@ -11,6 +13,7 @@ const ChatInput = ({
   receiverId: string;
   conversationId: string;
 }) => {
+  const socket = useSocket();
   const [message, setMessage] = useState<string>("");
   const [attachments, setAttachments] = useState<
     { id: string; file: File; fileUrl: string; hasError: boolean }[]
@@ -24,13 +27,33 @@ const ChatInput = ({
   const handleAddMessage = async () => {
     setLoading(true);
     const finalAttachments = attachments.map((atc) => atc.file);
-    await addMessage(receiverId, conversationId, message, finalAttachments);
-    setLoading(false);
-    setMessage("");
-    attachments.forEach((atc) => {
-      URL.revokeObjectURL(atc.fileUrl);
-    });
-    setAttachments([]);
+    const result = await addMessage(
+      receiverId,
+      conversationId,
+      message,
+      finalAttachments,
+    );
+
+    if (result.success) {
+      // emit the new message
+      socket?.emit("add-message", {
+        conversationId,
+        newMessage: result.newMessage,
+      });
+
+      setLoading(false);
+      setMessage("");
+      attachments.forEach((atc) => {
+        URL.revokeObjectURL(atc.fileUrl);
+      });
+      setAttachments([]);
+    } else {
+      toast.error(result.message, {
+        className:
+          "bg-[#C53030] text-white rounded-md shadow-md px-4 py-2 text-sm",
+        progressClassName: "bg-white/50",
+      });
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +78,6 @@ const ChatInput = ({
       }
 
       const imageUrl = URL.createObjectURL(file);
-      console.log(imageUrl);
 
       return {
         id: `${new Date().getTime()}${Math.random()}`,
@@ -99,6 +121,7 @@ const ChatInput = ({
       setFileError({ allowedType: "", maxSize: "" });
     }
   };
+
   return (
     <>
       {attachments.length > 0 && (

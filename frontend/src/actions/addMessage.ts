@@ -32,7 +32,9 @@ const addMessage = async (
         },
       },
     );
-    await res.json();
+    const result = await res.json();
+
+    return { success: result.success, newMessage: result.data };
   } catch (error) {
     let message: string;
     if (error instanceof Error) {

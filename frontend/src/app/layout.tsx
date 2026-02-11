@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Ubuntu } from "next/font/google";
-import Providers from "@/components/Providers";
+import Providers from "@/providers";
 import GlobalToast from "@/components/GlobalToast";
 
 const ubuntu = Ubuntu({

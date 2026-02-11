@@ -5,7 +5,7 @@ import RoomsLayoutContent from "./components/RoomsLayoutContent";
 
 const RoomsLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#d1d7db] text-[#111b21] relative">
+    <div className="flex h-screen w-full overflow-hidden bg-white text-[#111b21] relative">
       <Suspense fallback={<LoadingSpinner />}>
         <RoomsLayoutContent navigationRail={<NavigationRail />}>
           {children}

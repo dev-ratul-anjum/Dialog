@@ -1,7 +1,7 @@
 const LoadingSpinner = () => {
   return (
     <div
-      className="bg-white flex min-h-[50vh] w-full flex-col items-center justify-center gap-4 p-8 sm:min-h-[60vh] md:p-12 lg:min-h-[70vh]"
+      className="bg-white flex min-h-[50vh] w-full flex-col items-center justify-center gap-4 sm:min-h-[60vh] lg:min-h-[70vh]"
       aria-label="Loading content"
       role="status"
     >

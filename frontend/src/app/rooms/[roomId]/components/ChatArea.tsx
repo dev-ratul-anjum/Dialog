@@ -10,7 +10,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import ChatInput from "./ChatInput";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Image from "next/image";
@@ -18,6 +18,7 @@ import Message from "./Message";
 import ChatHeaderSkeleton from "./ChatHeaderSkeleton";
 import MessageAreaSkeleton from "./MessageAreaSkeleton";
 import ChatLoadingSpinner from "./ChatLoadingSpinner";
+import { useSocket } from "@/providers/SocketProvider";
 
 const ChatArea = ({
   children,
@@ -26,6 +27,10 @@ const ChatArea = ({
   children: ReactNode;
   conversationId: string;
 }) => {
+  const socket = useSocket();
+  const [newMessages, setNewMessages] = useState<MessageItem[]>([]);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
   const [showContactInfo, setShowContactInfo] = useState(false);
   const loaderRef = useRef(null);
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -72,6 +77,45 @@ const ChatArea = ({
       if (observer) observer.disconnect();
     };
   }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
+
+  // join to the room
+  useEffect(() => {
+    if (!socket || !conversationId) return;
+
+    socket.emit("join-room", conversationId);
+
+    return () => {
+      socket.emit("leave-room", conversationId);
+    };
+  }, [socket, conversationId]);
+
+  // listen new message
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewMessage = (payload: MessageItem) => {
+      setNewMessages((prev) => [payload, ...prev]);
+      requestAnimationFrame(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      });
+    };
+
+    socket.on("new-message", handleNewMessage);
+
+    return () => {
+      socket.off("new-message", handleNewMessage);
+    };
+  }, [socket]);
+
+  const allMessages = useMemo(() => {
+    const map = new Map<string, MessageItem>();
+    newMessages.forEach((msg) => map.set(msg.id, msg));
+
+    data?.pages.forEach((page) => {
+      page.data.messages.forEach((msg: MessageItem) => map.set(msg.id, msg));
+    });
+
+    return Array.from(map.values());
+  }, [data, newMessages]);
 
   return (
     <>
@@ -145,15 +189,14 @@ const ChatArea = ({
           <MessageAreaSkeleton />
         ) : (
           <section className="custom-scrollbar flex flex-1 flex-col-reverse gap-2 overflow-y-auto p-4">
-            {data?.pages.flatMap((page) =>
-              page?.data.messages.map((msg: MessageItem) => (
-                <Message
-                  key={msg.id}
-                  item={msg}
-                  conversationParticipantId={conversationParticipantId}
-                />
-              )),
-            )}
+            <div ref={bottomRef} />
+            {allMessages.map((msg: MessageItem) => (
+              <Message
+                key={msg.id}
+                item={msg}
+                conversationParticipantId={conversationParticipantId}
+              />
+            ))}
 
             {hasNextPage && <ChatLoadingSpinner ref={loaderRef} />}
           </section>

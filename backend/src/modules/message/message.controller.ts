@@ -19,10 +19,15 @@ const createMessage = catchAsync(async (req: Request, res: Response) => {
     const urls = resuljs.map((r) => r.secure_url);
     attachments = urls;
   }
-  await messageService.createMessage(req.body, senderId, attachments);
+  const newMessage = await messageService.createMessage(
+    req.body,
+    senderId,
+    attachments,
+  );
   return responseHandler(res, 201, {
     success: true,
     message: "Message created Successfully!",
+    data: newMessage,
   });
 });
 
