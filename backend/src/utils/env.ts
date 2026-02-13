@@ -12,6 +12,18 @@ const envSchema = z.object({
   COOKIE_SECRET: z.string(),
   ACCESS_TOKEN_NAME: z.string(),
   ACCESS_TOKEN_EXPIRES_IN: z.string(),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
+  GOOGLE_CALLBACK_URL: z.string(),
+  TWITTER_CONSUMER_KEY: z.string(),
+  TWITTER_CONSUMER_SECRET: z.string(),
+  TWITTER_CALLBACK_URL: z.string(),
+  FACEBOOK_APP_ID: z.string(),
+  FACEBOOK_APP_SECRET: z.string(),
+  FACEBOOK_CALLBACK_URL: z.string(),
+  FRONTEND_OAUTH_SUCCESS_REDIRECT_URL: z.string(),
+  FRONTEND_LOGIN_URL: z.string(),
+  SESSION_SECRET: z.string(),
 });
 
 const result = envSchema.safeParse(process.env);
