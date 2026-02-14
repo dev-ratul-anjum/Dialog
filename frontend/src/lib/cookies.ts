@@ -28,6 +28,20 @@ export async function forwardCookie(setCookieHeader: string) {
  */
 export async function getDecodedCookies(): Promise<string> {
   const cookieStore = await cookies();
-  const cookieString = cookieStore.toString();
-  return decodeURIComponent(cookieString);
+  let cookieHeader = cookieStore.toString();
+
+  const cookieName = process.env.ACCESS_TOKEN_NAME;
+  const regex = new RegExp(`${cookieName}=([^;]+)`);
+  const cookieMatch = cookieHeader.match(regex);
+
+  if (cookieMatch) {
+    let cookieValue = cookieMatch[1];
+
+    if (cookieValue.startsWith("s%253A")) {
+      cookieValue = decodeURIComponent(cookieValue); // decode
+      cookieHeader = cookieHeader.replace(cookieMatch[1], cookieValue);
+    }
+  }
+
+  return cookieHeader;
 }

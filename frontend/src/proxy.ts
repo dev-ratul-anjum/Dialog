@@ -1,5 +1,5 @@
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { getDecodedCookies } from "./lib/cookies";
 
 const protectedRoutes = ["/rooms", "/profile", "/settings", "/add-chat"];
 
@@ -8,9 +8,7 @@ export const proxy = async (request: NextRequest) => {
 
   const isAuthPage = pathname === "/login" || pathname === "/sign-up";
 
-  const cookieStore = await cookies();
-  let cookieHeader = cookieStore.toString();
-  cookieHeader = decodeURIComponent(cookieHeader);
+  const cookieHeader = await getDecodedCookies(); // Decode for signed cookie
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/v1/me`,

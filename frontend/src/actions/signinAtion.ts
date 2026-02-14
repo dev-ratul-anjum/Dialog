@@ -45,7 +45,6 @@ const signinAction = async (prevState: FormState, formData: FormData) => {
     );
 
     // Forward backend Set-Cookie to browser
-
     const setCookieHeader = response.headers.get("set-cookie");
 
     if (setCookieHeader) {

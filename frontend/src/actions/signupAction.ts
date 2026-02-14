@@ -1,5 +1,6 @@
 "use server";
 
+import { forwardCookie } from "@/lib/cookies";
 import { signupSchema } from "@/schema/signupSchema";
 import { redirect } from "next/navigation";
 
@@ -49,6 +50,14 @@ const signupAction = async (prevState: FormState, formData: FormData) => {
         body: backendForm,
       },
     );
+
+    // Forward backend Set-Cookie to browser
+    const setCookieHeader = response.headers.get("set-cookie");
+
+    if (setCookieHeader) {
+      await forwardCookie(setCookieHeader);
+    }
+
     const result = await response.json();
 
     if (!result.success) {
