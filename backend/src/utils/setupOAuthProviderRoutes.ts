@@ -34,7 +34,7 @@ const setupOAuthProviderRoutes = (
           if (req.query.error === "access_denied") {
             const errorPageHtml = getAuthErrorPageHtml(
               "You cancelled the login process.",
-              env.FRONTEND_LOGIN_URL ?? "/login",
+              env.FRONTEND_LOGIN_URL,
             );
             return res.status(401).send(errorPageHtml);
           }
@@ -43,7 +43,7 @@ const setupOAuthProviderRoutes = (
           if (err) {
             const errorPageHtml = getAuthErrorPageHtml(
               `There was an issue connecting to ${provider}. Please try again.`,
-              env.FRONTEND_LOGIN_URL ?? "/login",
+              env.FRONTEND_LOGIN_URL,
             );
             return res.status(500).send(errorPageHtml);
           }

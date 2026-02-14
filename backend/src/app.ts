@@ -21,6 +21,9 @@ app.use(
     saveUninitialized: false,
     cookie: {
       secure: env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: env.NODE_ENV === "production" ? "none" : "lax", // dev:lax
+      maxAge: 5 * 60 * 1000, // 5 min
     },
   }),
 );

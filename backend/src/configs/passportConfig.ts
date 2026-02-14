@@ -36,6 +36,8 @@ export const handleOAuthCallback = async (
       },
       select: {
         id: true,
+        name: true,
+        email: true,
         googleId: true,
         twitterId: true,
         facebookId: true,
@@ -121,10 +123,31 @@ passport.use(
   ),
 );
 
-passport.serializeUser((user, done) => {
-  done(null, (user as { id: string }).id);
+// serializeUser:
+// This runs once during login.
+// It determines what data will be stored in the session.
+// Best practice is to store only user.id,
+// because storing the entire user object increases session size
+// and can cause stale data issues.
+passport.serializeUser((user: Express.User, done) => {
+  done(null, user.id);
 });
 
-passport.deserializeUser((id: string, done) => {
-  done(null, { id });
+// deserializeUser:
+// This runs on every request when a session is active.
+// It receives whatever was stored during serialization (usually user.id).
+// Using that id, we fetch the full user from the database
+// and attach it to req.user.
+passport.deserializeUser(async (id: string, done) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) return done(null, false);
+
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
 });

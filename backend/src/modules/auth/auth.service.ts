@@ -14,6 +14,14 @@ const loginUser = async (data: TLoginUserSchema) => {
     throw new ApiError(404, "No user found with the provided email.", "email");
   }
 
+  if (!user.password) {
+    throw new ApiError(
+      401,
+      "Incorrect password. Please try again.",
+      "password",
+    );
+  }
+
   const isValid = await bcrypt.compare(data.password, user.password);
 
   if (!isValid) {
