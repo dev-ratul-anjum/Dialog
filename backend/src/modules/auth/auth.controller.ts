@@ -33,7 +33,7 @@ const logoutUser = catchAsync(async (req: Request, res: Response) => {
 const getCurrentUser = catchAsync(async (req: Request, res: Response) => {
   const user = await prisma.user.findUnique({
     where: {
-      email: req.user?.id,
+      id: req.user?.id,
     },
     select: {
       name: true,

@@ -13,6 +13,11 @@ import { env } from "./utils/env.js";
 
 const app = express();
 
+// Trust proxy must be set before session middleware
+if (env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
 // Session setup (short-lived, memory)
 app.use(
   session({
