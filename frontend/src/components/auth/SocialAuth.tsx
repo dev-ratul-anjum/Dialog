@@ -1,4 +1,4 @@
-import { Facebook, Twitter } from "lucide-react";
+import { Github, Twitter } from "lucide-react";
 import Link from "next/link";
 
 const SocialAuth = () => {
@@ -40,10 +40,10 @@ const SocialAuth = () => {
           </svg>
         </Link>
         <Link
-          href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/v1/facebook`}
+          href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/v1/github`}
           className="flex items-center justify-center py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
         >
-          <Facebook className="h-5 w-5 text-[#1877F2]" fill="currentColor" />
+          <Github className="h-5 w-5 text-[#1877F2]" fill="currentColor" />
         </Link>
         <Link
           href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/v1/twitter`}

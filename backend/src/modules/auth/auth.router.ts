@@ -38,13 +38,13 @@ setupOAuthProviderRoutes(
   env.FRONTEND_OAUTH_SUCCESS_REDIRECT_URL,
 );
 
-// Facebook OAuth login and callback routes
+// Github OAuth login and callback routes
 setupOAuthProviderRoutes(
   authRouter,
-  "facebook",
+  "github",
   false,
   env.FRONTEND_OAUTH_SUCCESS_REDIRECT_URL,
-  ["public_profile", "email"],
+  ["user:email"],
 );
 
 export default authRouter;

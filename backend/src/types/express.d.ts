@@ -4,7 +4,7 @@ declare global {
   namespace Express {
     interface User extends Pick<
       PrismaUser,
-      "id" | "name" | "email" | "googleId" | "twitterId" | "facebookId"
+      "id" | "name" | "email" | "googleId" | "twitterId" | "githubId"
     > {}
   }
 }

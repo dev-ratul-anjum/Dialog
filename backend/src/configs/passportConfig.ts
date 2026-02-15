@@ -1,12 +1,32 @@
 import passport, { Profile } from "passport";
+import axios from "axios";
 import {
   Strategy as GoogleStrategy,
   VerifyCallback,
 } from "passport-google-oauth20";
 import { Strategy as TwitterStrategy } from "passport-twitter";
-import { Strategy as FacebookStrategy } from "passport-facebook";
+import { Strategy as GitHubStrategy } from "passport-github2";
 import { env } from "$/utils/env.js";
 import { prisma } from "$/prisma/prisma.js";
+
+// Fetch Email For Github
+export const fetchPrimaryEmail = async (accessToken: string) => {
+  try {
+    const response = await axios.get("https://api.github.com/user/emails", {
+      headers: {
+        Authorization: `Bearer  ${accessToken}`,
+        "User-Agent": "OAuth App",
+      },
+    });
+    const primaryEmail = response.data.find(
+      (emailObj: { email: string; primary: boolean; verified: boolean }) =>
+        emailObj.primary && emailObj.verified,
+    );
+    return primaryEmail?.email;
+  } catch (err) {
+    return undefined;
+  }
+};
 
 // Common callback function for OAuth providers
 export const handleOAuthCallback = async (
@@ -18,21 +38,20 @@ export const handleOAuthCallback = async (
   try {
     const id = profile.id;
     const userProvider = profile.provider;
-    const email = profile.emails?.[0]?.value ?? undefined;
+    let email = profile.emails?.[0]?.value ?? undefined;
     const name = profile.displayName ?? "No Name";
     const photo = profile.photos?.[0]?.value ?? undefined;
     const googleId = userProvider === "google" ? id : undefined;
     const twitterId = userProvider === "twitter" ? id : undefined;
-    const facebookId = userProvider === "facebook" ? id : undefined;
+    const githubId = userProvider === "github" ? id : undefined;
+
+    if (userProvider === "github" && !email) {
+      email = await fetchPrimaryEmail(accessToken);
+    }
 
     let user = await prisma.user.findFirst({
       where: {
-        OR: [
-          { email },
-          { googleId: id },
-          { twitterId: id },
-          { facebookId: id },
-        ],
+        OR: [{ email }, { googleId: id }, { twitterId: id }, { githubId: id }],
       },
       select: {
         id: true,
@@ -40,7 +59,7 @@ export const handleOAuthCallback = async (
         email: true,
         googleId: true,
         twitterId: true,
-        facebookId: true,
+        githubId: true,
       },
     });
 
@@ -52,7 +71,7 @@ export const handleOAuthCallback = async (
           photo,
           googleId,
           twitterId,
-          facebookId,
+          githubId,
         },
       });
     } else {
@@ -66,8 +85,8 @@ export const handleOAuthCallback = async (
         updateData.twitterId = id;
       }
 
-      if (userProvider === "facebook" && !user.facebookId) {
-        updateData.facebookId = id;
+      if (userProvider === "github" && !user.githubId) {
+        updateData.githubId = id;
       }
 
       if (Object.keys(updateData).length > 0) {
@@ -110,14 +129,13 @@ passport.use(
   ),
 );
 
-// Facebook Strategy
+// Github Strategy
 passport.use(
-  new FacebookStrategy(
+  new GitHubStrategy(
     {
-      clientID: env.FACEBOOK_APP_ID,
-      clientSecret: env.FACEBOOK_APP_SECRET,
-      callbackURL: env.FACEBOOK_CALLBACK_URL,
-      profileFields: ["id", "displayName", "emails", "photos"],
+      clientID: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
+      callbackURL: env.GITHUB_CALLBACK_URL,
     },
     handleOAuthCallback,
   ),

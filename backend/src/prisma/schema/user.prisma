@@ -1,12 +1,12 @@
 model User {
-  id         String  @id @default(uuid())
-  name       String
-  email      String? @unique
-  password   String?
-  photo      String?
-  googleId   String?
-  twitterId  String?
-  facebookId String?
+  id        String  @id @default(uuid())
+  name      String
+  email     String? @unique
+  password  String?
+  photo     String?
+  googleId  String?
+  twitterId String?
+  githubId  String?
 
   createdConversations       Conversation[] @relation("ConversationCreator")
   participatingConversations Conversation[] @relation("ConversationParticipant")

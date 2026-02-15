@@ -34,7 +34,7 @@ const checkAuth: RequestHandler = async (req, res, next) => {
         email: true,
         googleId: true,
         twitterId: true,
-        facebookId: true,
+        githubId: true,
       },
     });
 

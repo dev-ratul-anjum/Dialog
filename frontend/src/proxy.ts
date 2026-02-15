@@ -9,6 +9,7 @@ export const proxy = async (request: NextRequest) => {
   const isAuthPage = pathname === "/login" || pathname === "/sign-up";
 
   const cookieHeader = await getDecodedCookies(); // Decode for signed cookie
+  console.log("proxy cookieHeader : ", cookieHeader);
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/v1/me`,
@@ -19,6 +20,7 @@ export const proxy = async (request: NextRequest) => {
     },
   );
   const result = await response.json();
+  console.log("proxy result : ", result);
 
   if (result.success && isAuthPage) {
     return NextResponse.redirect(new URL("/rooms", request.url));

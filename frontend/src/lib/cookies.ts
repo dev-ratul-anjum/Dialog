@@ -29,6 +29,7 @@ export async function forwardCookie(setCookieHeader: string) {
 export async function getDecodedCookies(): Promise<string> {
   const cookieStore = await cookies();
   let cookieHeader = cookieStore.toString();
+  console.log("getDecodedCookies cookieHeader before decode: ", cookieHeader);
 
   const cookieName = process.env.ACCESS_TOKEN_NAME;
   const regex = new RegExp(`${cookieName}=([^;]+)`);
@@ -42,6 +43,7 @@ export async function getDecodedCookies(): Promise<string> {
       cookieHeader = cookieHeader.replace(cookieMatch[1], cookieValue);
     }
   }
+  console.log("getDecodedCookies cookieHeader after decode: ", cookieHeader);
 
   return cookieHeader;
 }
