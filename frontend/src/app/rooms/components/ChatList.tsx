@@ -10,11 +10,14 @@ import FiltersSkeleton from "./FiltersSkeleton";
 import useDebounce from "@/hooks/useDebounce";
 import NoConversationSkeleton from "./NoConversationSkeleton";
 import Conversation from "./Conversation";
+import { useParams } from "next/navigation";
 
 const ChatList = () => {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [query, setQuery] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+  const params = useParams<{ roomId?: string }>();
+  const isRoomPage = !!params?.roomId; // true if /rooms/[id]
 
   const debouncedSearchChange = useDebounce((value: string) => {
     setDebouncedSearch(value);
@@ -71,7 +74,10 @@ const ChatList = () => {
   };
 
   return (
-    <>
+    <aside
+      id="chat-list-panel"
+      className={`absolute z-10 flex shrink-0 h-full w-full flex-col border-r border-[#e9edef] bg-white transition-transform duration-300 md:relative md:w-87.5 lg:w-100 ${isRoomPage ? "hidden md:flex" : "flex"}`}
+    >
       {/* Header */}
       <header className="flex h-15 items-center justify-between bg-white px-4 py-2">
         <h1 className="text-2xl font-bold tracking-tight">Chats</h1>
@@ -156,7 +162,7 @@ const ChatList = () => {
 
         {items.length === 0 && !isLoading && <NoConversationSkeleton />}
       </div>
-    </>
+    </aside>
   );
 };
 
