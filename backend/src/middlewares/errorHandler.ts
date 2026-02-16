@@ -60,19 +60,26 @@ export const globalErrorHandler: ErrorRequestHandler = (
         ];
         break;
 
-      case "P2003": // Foreign key
+      case "P2003": {
+        // Foreign key constraint failed
         const modelName = err.meta?.modelName || "UnknownModel";
         const fieldName = parseP2003FieldName(err.message);
 
         statusCode = 400;
-        message = `Invalid value provided for '${fieldName}'. Please ensure the referenced record exists.`;
+
+        message = `Operation failed due to a related data constraint.`;
+
         errors = [
           {
             path: fieldName !== "unknown_field" ? fieldName : "general",
-            message,
+            message:
+              fieldName !== "unknown_field"
+                ? `The provided value for '${fieldName}' is invalid or this ${modelName} is still linked to other records. Ensure the referenced record exists and remove dependent records if necessary.`
+                : `This record is either linked to other existing records or references a non-existing related record. Please verify relationships before retrying.`,
           },
         ];
         break;
+      }
 
       case "P1000": // Auth fail
         statusCode = 500;
