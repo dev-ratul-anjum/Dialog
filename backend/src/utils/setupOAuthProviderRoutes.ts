@@ -41,7 +41,6 @@ const setupOAuthProviderRoutes = (
 
           // OAuth provider internal error
           if (err) {
-            console.log("OAuth provider internal error : ", err);
             const errorPageHtml = getAuthErrorPageHtml(
               `There was an issue connecting to ${provider}. Please try again.`,
               env.FRONTEND_LOGIN_URL,

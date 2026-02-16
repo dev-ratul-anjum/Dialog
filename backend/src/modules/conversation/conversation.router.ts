@@ -28,4 +28,11 @@ conversationRouter.get(
   conversationController.getConversations,
 );
 
+// Get Conversation Info
+conversationRouter.get(
+  "/v1/info/:conversationId",
+  checkAuth,
+  conversationController.getConversationInfo,
+);
+
 export default conversationRouter;

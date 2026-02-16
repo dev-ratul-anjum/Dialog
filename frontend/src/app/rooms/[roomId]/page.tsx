@@ -3,6 +3,12 @@ import ContactInfo from "@/app/rooms/[roomId]/components/ContactInfo";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { Suspense } from "react";
 
+export const metadata = {
+  title: "Dialog | Enjoy Chat Room",
+  description:
+    "Discover public rooms or communities that match your interests. Join and chat in real-time with Dialog.",
+};
+
 const RoomPage = ({ params }: { params: Promise<{ roomId: string }> }) => {
   return (
     <>
@@ -23,7 +29,7 @@ const RoomContent = async ({ params }: RoomContentProps) => {
       {/* MAIN CHAT AREA */}
       <ChatArea conversationId={roomId}>
         {/* CONTACT INFO PANEL */}
-        <ContactInfo />
+        <ContactInfo conversationId={roomId} />
       </ChatArea>
     </>
   );

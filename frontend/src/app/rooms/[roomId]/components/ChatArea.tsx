@@ -9,7 +9,6 @@ import {
   Video,
   X,
 } from "lucide-react";
-import Link from "next/link";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import ChatInput from "./ChatInput";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -19,6 +18,7 @@ import ChatHeaderSkeleton from "./ChatHeaderSkeleton";
 import MessageAreaSkeleton from "./MessageAreaSkeleton";
 import ChatLoadingSpinner from "./ChatLoadingSpinner";
 import { useSocket } from "@/providers/SocketProvider";
+import { useRouter } from "next/navigation";
 
 const ChatArea = ({
   children,
@@ -27,35 +27,48 @@ const ChatArea = ({
   children: ReactNode;
   conversationId: string;
 }) => {
+  const router = useRouter();
   const socket = useSocket();
   const [newMessages, setNewMessages] = useState<MessageItem[]>([]);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const [showContactInfo, setShowContactInfo] = useState(false);
   const loaderRef = useRef(null);
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery({
-      queryKey: ["conversation-messages", conversationId],
-      queryFn: async ({ pageParam }) => {
-        const res = await fetch(
-          `/api/proxy/message/v1/get/${conversationId}?page=${pageParam}`,
-          {
-            credentials: "include",
-          },
-        );
-        return res.json();
-      },
-      initialPageParam: 1,
-      getNextPageParam: (lastPage) => {
-        if (!lastPage?.data?.meta.hasNextPage) return undefined;
-        return lastPage?.data?.meta.nextPage;
-      },
-      getPreviousPageParam: (firstPage) => {
-        if (!firstPage?.data?.meta.hasPreviousPage) return undefined;
-        return firstPage?.data?.meta.prevPage;
-      },
-      gcTime: 10 * 60_000,
-    });
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["conversation-messages", conversationId],
+    queryFn: async ({ pageParam }) => {
+      const res = await fetch(
+        `/api/proxy/message/v1/get/${conversationId}?page=${pageParam}`,
+        {
+          credentials: "include",
+        },
+      );
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.message || "Conversation not found");
+      }
+
+      return data;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage?.data?.meta.hasNextPage) return undefined;
+      return lastPage?.data?.meta.nextPage;
+    },
+    getPreviousPageParam: (firstPage) => {
+      if (!firstPage?.data?.meta.hasPreviousPage) return undefined;
+      return firstPage?.data?.meta.prevPage;
+    },
+    gcTime: 10 * 60_000,
+  });
 
   const conversationParticipantId = data?.pages[0].data.participantId;
 
@@ -117,11 +130,44 @@ const ChatArea = ({
     return Array.from(map.values());
   }, [data, newMessages]);
 
+  if (isError) {
+    return (
+      <div className="flex h-full w-full items-center justify-center px-4">
+        <div className="flex max-w-md flex-col items-center gap-6 text-center">
+          {/* Icon */}
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
+            <X className="h-8 w-8 text-red-500" />
+          </div>
+
+          {/* Title */}
+          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+            Conversation not found
+          </h2>
+
+          {/* Description */}
+          <p className="text-sm leading-relaxed text-gray-500 sm:text-base">
+            This conversation may have been deleted or you don’t have access to
+            it.
+          </p>
+
+          {/* Action */}
+          <button
+            onClick={() => router.push("/rooms")}
+            className="w-full rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 sm:w-auto"
+          >
+            Back to conversations
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <main
         id="main-chat-area"
-        className="relative z-0 flex h-full w-full flex-1 flex-col bg-[#efeae2] bg-linear-to-b from-[#f8fafc] via-[#f1f5f9] to-[#e5e7eb]"
+        className={`relative z-0 flex h-full w-full flex-col bg-[#efeae2] bg-linear-to-b from-[#f8fafc] via-[#f1f5f9] to-[#e5e7eb] 
+        transition-opacity duration-300 ease-in-out ${showContactInfo ? "opacity-0 hidden lg:flex lg:flex-1 lg:opacity-100" : "opacity-100 flex flex-1"}`}
       >
         {/* Overlay for pattern contrast */}
         <div className="pointer-events-none absolute inset-0 z-[-1] bg-[#efeae2]/90"></div>
@@ -136,9 +182,15 @@ const ChatArea = ({
               onClick={() => setShowContactInfo(true)}
             >
               {/* Back button for mobile */}
-              <Link href="/rooms" className="mr-1 text-[#54656f] md:hidden">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push("/rooms");
+                }}
+                className="mr-1 text-[#54656f] md:hidden"
+              >
                 <ArrowLeft className="h-5 w-5" />
-              </Link>
+              </button>
 
               {data?.pages[0].data.participantPhoto ? (
                 <Image
@@ -212,19 +264,14 @@ const ChatArea = ({
       {showContactInfo && (
         <aside
           id="contact-info-panel"
-          className="relative z-20 hidden h-full w-87.5 flex-col border-l border-[#e9edef] bg-white transition-transform duration-300 lg:flex lg:translate-x-0 lg:w-100"
+          className={`absolute inset-0 z-20 flex h-full w-full flex-col border-l border-[#e9edef] bg-white transition-transform duration-300 ease-in-out lg:static lg:w-100 lg:translate-x-0 
+          ${showContactInfo ? "translate-x-0" : "translate-x-full"}`}
         >
-          {/* Header */}
+          {/* Header - updated button */}
           <header className="flex h-15 items-center gap-4 border-b border-[#e9edef] bg-[#f0f2f5] px-4">
             <button
               onClick={() => setShowContactInfo(false)}
-              className="text-[#54656f] lg:hidden cursor-pointer"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => setShowContactInfo(false)}
-              className="hidden text-[#54656f] lg:block cursor-pointer"
+              className="text-[#54656f] cursor-pointer"
             >
               <X className="h-5 w-5" />
             </button>

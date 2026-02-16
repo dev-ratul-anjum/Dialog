@@ -1,3 +1,32 @@
+export const metadata = {
+  title: "Dialog | Privacy Policy",
+  description:
+    "Read the Privacy Policy of Dialog chat application. Understand how your data is collected, used, and protected while using our messaging platform.",
+  keywords: [
+    "dialog chat application",
+    "Ratul Anjum",
+    "privacy policy",
+    "data protection",
+    "user privacy",
+    "chat app security",
+  ],
+  openGraph: {
+    type: "website",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}/privacy-policy`,
+    title: "Dialog | Privacy Policy",
+    description:
+      "Read the Privacy Policy of Dialog chat application. Understand how your data is collected, used, and protected while using our messaging platform.",
+    siteName: "Dialog",
+  },
+  twitter: {
+    card: "summary",
+    title: "Dialog | Privacy Policy",
+    description:
+      "Read the Privacy Policy of Dialog chat application. Understand how your data is collected, used, and protected while using our messaging platform.",
+    site: "@ratulanjum",
+  },
+};
+
 const PrivacyPolicyPage = () => {
   return (
     <main className="mx-auto max-w-3xl px-4 py-16 text-gray-800">

@@ -4,6 +4,34 @@ import SocialAuth from "@/components/auth/SocialAuth";
 import AuthFooter from "@/components/auth/AuthFooter";
 import AuthBranding from "@/components/auth/AuthBranding";
 
+export const metadata = {
+  title: "Dialog | Sign Up",
+  description:
+    "Create your Dialog account and start chatting instantly. Join communities, connect with friends, and experience seamless messaging.",
+  keywords: [
+    "dialog chat application",
+    "Ratul Anjum",
+    "sign up",
+    "create account",
+    "real-time chat",
+  ],
+  openGraph: {
+    type: "website",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}/sign-up`,
+    title: "Dialog | Sign Up",
+    description:
+      "Create your Dialog account and start chatting instantly. Join communities, connect with friends, and experience seamless messaging.",
+    siteName: "Dialog",
+  },
+  twitter: {
+    card: "summary",
+    title: "Dialog | Sign Up",
+    description:
+      "Create your Dialog account and start chatting instantly. Join communities, connect with friends, and experience seamless messaging.",
+    site: "@yourtwitterhandle",
+  },
+};
+
 const SignupPage = () => {
   return (
     <div className="min-h-screen bg-[#F2F4F7] flex flex-col items-center justify-center p-4  text-slate-800">

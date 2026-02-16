@@ -1,3 +1,32 @@
+export const metadata = {
+  title: "Dialog Chat Application | Terms of Service",
+  description:
+    "Read the Terms of Service for Dialog chat application. Learn how we protect your data, define usage rules, and ensure a safe messaging experience.",
+  keywords: [
+    "dialog chat application",
+    "Ratul Anjum",
+    "terms of service",
+    "TOS",
+    "chat app rules",
+    "privacy rules",
+  ],
+  openGraph: {
+    type: "website",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}/terms-of-service`,
+    title: "Dialog Chat Application | Terms of Service",
+    description:
+      "Read the Terms of Service for Dialog chat application. Learn how we protect your data, define usage rules, and ensure a safe messaging experience.",
+    siteName: "Dialog",
+  },
+  twitter: {
+    card: "summary",
+    title: "Dialog Chat Application | Terms of Service",
+    description:
+      "Read the Terms of Service for Dialog chat application. Learn how we protect your data, define usage rules, and ensure a safe messaging experience.",
+    site: "@ratulanjum",
+  },
+};
+
 const TermsAndConditionsPage = () => {
   return (
     <main className="mx-auto max-w-3xl px-4 py-16 text-gray-800">

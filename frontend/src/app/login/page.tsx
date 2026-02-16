@@ -4,6 +4,34 @@ import AuthFooter from "@/components/auth/AuthFooter";
 import AuthBranding from "@/components/auth/AuthBranding";
 import LoginForm from "@/app/login/components/LoginForm";
 
+export const metadata = {
+  title: "Dialog | Login",
+  description:
+    "Access your Dialog account and reconnect with your friends, communities, and conversations in real-time.",
+  keywords: [
+    "dialog chat application",
+    "Ratul Anjum",
+    "login",
+    "account access",
+    "real-time chat",
+  ],
+  openGraph: {
+    type: "website",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
+    title: "Dialog | Login",
+    description:
+      "Access your Dialog account and reconnect with your friends, communities, and conversations in real-time.",
+    siteName: "Dialog",
+  },
+  twitter: {
+    card: "summary",
+    title: "Dialog | Login",
+    description:
+      "Access your Dialog account to continue your conversations seamlessly. Private and group chats available in real-time.",
+    site: "@yourtwitterhandle",
+  },
+};
+
 const LoginPage = () => {
   return (
     <div className="min-h-screen bg-[#F2F4F7] flex flex-col items-center justify-center p-4  text-slate-800">

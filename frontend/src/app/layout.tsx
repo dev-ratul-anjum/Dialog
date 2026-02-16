@@ -9,6 +9,12 @@ const ubuntu = Ubuntu({
   display: "swap",
 });
 
+export const metadata = {
+  title: "Dialog",
+  description: "Chat, explore rooms, and connect with others seamlessly.",
+  keywords: ["Dialog", "chat app", "messaging platform", "404", "error page"],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

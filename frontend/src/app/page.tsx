@@ -12,6 +12,36 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+export const metadata = {
+  title: "Dialog | Welcome to Seamless Conversations",
+  description:
+    "Start chatting instantly, explore public rooms, or create your own private space. Dialog brings your conversations together in one simple, intuitive platform.",
+  keywords: [
+    "dialog chat application",
+    "Ratul Anjum",
+    "real-time messaging",
+    "group chat",
+    "private chat",
+    "community chat",
+    "online chat platform",
+  ],
+  openGraph: {
+    type: "website",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}`,
+    title: "Dialog Chat Application | Connect Instantly",
+    description:
+      "Connect instantly with friends, communities, and colleagues using Dialog chat application. Enjoy seamless private and group messaging in real-time.",
+    siteName: "Dialog",
+  },
+  twitter: {
+    card: "summary",
+    title: "Dialog Chat Application | Connect Instantly",
+    description:
+      "Connect instantly with friends, communities, and colleagues using Dialog chat application. Enjoy seamless private and group messaging in real-time.",
+    site: "@yourtwitterhandle",
+  },
+};
+
 const HomePage = () => {
   return (
     <div className="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
@@ -379,7 +409,7 @@ const HomePage = () => {
                 </li>
                 <li>
                   <Link
-                    href="/terms-condition"
+                    href="/terms-of-service"
                     className="hover:text-white transition"
                   >
                     Terms of Service

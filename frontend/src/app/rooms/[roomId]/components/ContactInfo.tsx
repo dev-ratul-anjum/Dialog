@@ -1,5 +1,5 @@
+import { getDecodedCookies } from "@/lib/cookies";
 import {
-  Ban,
   Bell,
   ChevronRight,
   History,
@@ -7,23 +7,54 @@ import {
   Phone,
   Search,
   Star,
-  ThumbsDown,
+  UserIcon,
   Users,
   Video,
 } from "lucide-react";
+import Image from "next/image";
+import ConversationActions from "./ConversationActions";
+import { notFound } from "next/navigation";
 
-const ContactInfo = () => {
+const ContactInfo = async ({ conversationId }: { conversationId: string }) => {
+  const cookieHeader = await getDecodedCookies(); // Decode for signed cookie
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/conversation/v1/info/${conversationId}`,
+    {
+      headers: {
+        Cookie: cookieHeader,
+      },
+    },
+  );
+
+  const info = await res.json();
+
+  if (info.success === false) {
+    notFound();
+  }
+
   return (
     <div className="custom-scrollbar flex-1 overflow-y-auto bg-[#d1d7db]">
       {/* Profile Section */}
       <div className="mb-2 flex flex-col items-center bg-white p-6 shadow-sm">
-        <img
-          src="https://i.pravatar.cc/150?u=1"
-          alt="Profile"
-          className="mb-4 h-40 w-40 rounded-full object-cover"
-        />
-        <h2 className="text-xl font-medium text-[#111b21]">Abu Sayeed</h2>
-        <p className="mt-1 text-base text-[#667781]">+880 1315-380067</p>
+        {info.data.participantPhoto ? (
+          <Image
+            src={info.data.participantPhoto}
+            alt="Profile"
+            className="mb-4 rounded-full object-cover"
+            height={150}
+            width={150}
+          />
+        ) : (
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-300 text-white mb-4">
+            <UserIcon className="h-10 w-10" />
+          </div>
+        )}
+        <h2 className="text-xl font-medium text-[#111b21]">
+          {info.data.participantName}
+        </h2>
+        <p className="mt-1 text-base text-[#667781]">
+          {info.data.participantEmail}
+        </p>
 
         {/* Action Buttons */}
         <div className="mt-6 flex w-full justify-center gap-4">
@@ -52,7 +83,7 @@ const ContactInfo = () => {
       <div className="mb-2 bg-white p-4 shadow-sm">
         <p className="mb-1 text-sm text-[#667781]">About</p>
         <p className="text-base text-[#111b21]">
-          Hey there! I am using WhatsApp.
+          Hey there! I am using Dialog.
         </p>
       </div>
 
@@ -118,17 +149,11 @@ const ContactInfo = () => {
         </div>
       </div>
 
-      {/* Block/Report */}
-      <div className="mb-4 flex flex-col bg-white shadow-sm">
-        <button className="flex items-center gap-4 px-4 py-3 font-medium text-red-500 hover:bg-gray-50">
-          <Ban className="h-5 w-5" />
-          <span>Block Abu Sayeed</span>
-        </button>
-        <button className="flex items-center gap-4 border-t border-[#e9edef] px-4 py-3 font-medium text-red-500 hover:bg-gray-50">
-          <ThumbsDown className="h-5 w-5" />
-          <span>Report Abu Sayeed</span>
-        </button>
-      </div>
+      {/* Block/Report/Delete */}
+      <ConversationActions
+        conversationId={conversationId}
+        participantName={info.data.participantName}
+      />
     </div>
   );
 };

@@ -18,6 +18,8 @@ const createConversation = catchAsync(async (req: Request, res: Response) => {
     },
   });
 });
+
+// Delete Conversation
 const deleteConversation = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id!;
   const conversationId = req.params.conversationId;
@@ -49,10 +51,31 @@ const getConversations = catchAsync(async (req: Request, res: Response) => {
     data,
   });
 });
+
+// Get Conversation Info
+const getConversationInfo = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id!;
+  const conversationId = req.params.conversationId;
+
+  if (!conversationId || typeof conversationId !== "string") {
+    throw new ApiError(400, "Required parameters not provided");
+  }
+  const data = await conversationService.getConversationInfo(
+    userId,
+    conversationId,
+  );
+  return responseHandler(res, 200, {
+    success: true,
+    message: "Conversation info retrive Successfully!",
+    data,
+  });
+});
+
 const conversationController = {
   createConversation,
   deleteConversation,
   getConversations,
+  getConversationInfo,
 };
 
 export default conversationController;

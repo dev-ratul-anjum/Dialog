@@ -14,7 +14,7 @@ const RoomsLayout = ({ children }: { children: ReactNode }) => {
         <ChatList />
       </Suspense>
 
-      <div className="flex-1 min-w-0"> {children}</div>
+      {children}
     </div>
   );
 };

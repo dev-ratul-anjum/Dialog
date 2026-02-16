@@ -6,7 +6,7 @@ const AuthFooter = () => {
       By clicking continue, you agree to our{" "}
       <Link
         prefetch={false}
-        href="/terms-condition"
+        href="/terms-of-service"
         className="underline hover:text-slate-600"
       >
         Terms of Service
