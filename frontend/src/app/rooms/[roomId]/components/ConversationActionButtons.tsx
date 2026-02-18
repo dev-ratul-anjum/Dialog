@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-const ConversationActions = ({
+const ConversationActionButtons = ({
   conversationId,
   participantName,
 }: {
@@ -67,4 +67,4 @@ const ConversationActions = ({
   );
 };
 
-export default ConversationActions;
+export default ConversationActionButtons;

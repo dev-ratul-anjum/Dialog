@@ -2,6 +2,7 @@ model Message {
     id             String       @id @default(ulid())
     text           String?
     attachments    String[]
+    markAsStar     Boolean      @default(false)
     senderId       String
     sender         User         @relation("MessageSender", fields: [senderId], references: [id])
     receiverId     String

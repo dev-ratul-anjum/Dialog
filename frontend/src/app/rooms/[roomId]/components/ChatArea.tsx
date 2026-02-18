@@ -9,9 +9,8 @@ import {
   Video,
   X,
 } from "lucide-react";
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ChatInput from "./ChatInput";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Message from "./Message";
 import ChatHeaderSkeleton from "./ChatHeaderSkeleton";
@@ -19,21 +18,19 @@ import MessageAreaSkeleton from "./MessageAreaSkeleton";
 import ChatLoadingSpinner from "./ChatLoadingSpinner";
 import { useSocket } from "@/providers/SocketProvider";
 import { useRouter } from "next/navigation";
+import useConversationMessages from "@/hooks/useConversationMessages";
+import ChatActionsSidebar from "./ChatActionsSidebar";
+import StarredMessages from "./StarredMessages";
 
-const ChatArea = ({
-  children,
-  conversationId,
-}: {
-  children: ReactNode;
-  conversationId: string;
-}) => {
+const ChatArea = ({ conversationId }: { conversationId: string }) => {
   const router = useRouter();
   const socket = useSocket();
   const [newMessages, setNewMessages] = useState<MessageItem[]>([]);
   const bottomRef = useRef<HTMLDivElement | null>(null);
-
-  const [showContactInfo, setShowContactInfo] = useState(false);
   const loaderRef = useRef(null);
+  const [activeSidebarTab, setActiveSidebarTab] =
+    useState<ActiveSidebarTab>(null);
+
   const {
     data,
     isLoading,
@@ -41,34 +38,7 @@ const ChatArea = ({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ["conversation-messages", conversationId],
-    queryFn: async ({ pageParam }) => {
-      const res = await fetch(
-        `/api/proxy/message/v1/get/${conversationId}?page=${pageParam}`,
-        {
-          credentials: "include",
-        },
-      );
-      const data = await res.json();
-
-      if (!data.success) {
-        throw new Error(data.message || "Conversation not found");
-      }
-
-      return data;
-    },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => {
-      if (!lastPage?.data?.meta.hasNextPage) return undefined;
-      return lastPage?.data?.meta.nextPage;
-    },
-    getPreviousPageParam: (firstPage) => {
-      if (!firstPage?.data?.meta.hasPreviousPage) return undefined;
-      return firstPage?.data?.meta.prevPage;
-    },
-    gcTime: 10 * 60_000,
-  });
+  } = useConversationMessages(conversationId);
 
   const conversationParticipantId = data?.pages[0].data.participantId;
 
@@ -167,7 +137,7 @@ const ChatArea = ({
       <main
         id="main-chat-area"
         className={`relative z-0 flex h-full w-full flex-col bg-[#efeae2] bg-linear-to-b from-[#f8fafc] via-[#f1f5f9] to-[#e5e7eb] 
-        transition-opacity duration-300 ease-in-out ${showContactInfo ? "opacity-0 hidden lg:flex lg:flex-1 lg:opacity-100" : "opacity-100 flex flex-1"}`}
+        transition-opacity duration-300 ease-in-out ${activeSidebarTab ? "opacity-0 hidden lg:flex lg:flex-1 lg:opacity-100" : "opacity-100 flex flex-1"}`}
       >
         {/* Overlay for pattern contrast */}
         <div className="pointer-events-none absolute inset-0 z-[-1] bg-[#efeae2]/90"></div>
@@ -179,7 +149,7 @@ const ChatArea = ({
           <header className="z-10 flex h-15 w-full items-center justify-between border-b border-[#e9edef] bg-[#f0f2f5] px-4 py-2">
             <div
               className="flex cursor-pointer items-center gap-3"
-              onClick={() => setShowContactInfo(true)}
+              onClick={() => setActiveSidebarTab("contactInfo")}
             >
               {/* Back button for mobile */}
               <button
@@ -227,7 +197,7 @@ const ChatArea = ({
                 <Search className="h-5 w-5" />
               </button>
               <button
-                onClick={() => setShowContactInfo(!showContactInfo)}
+                onClick={() => setActiveSidebarTab("contactInfo")}
                 className="cursor-pointer"
               >
                 <Info className="h-5 w-5" />
@@ -261,25 +231,19 @@ const ChatArea = ({
         />
       </main>
 
-      {showContactInfo && (
-        <aside
-          id="contact-info-panel"
-          className={`absolute inset-0 z-20 flex h-full w-full flex-col border-l border-[#e9edef] bg-white transition-transform duration-300 ease-in-out lg:static lg:w-100 lg:translate-x-0 
-          ${showContactInfo ? "translate-x-0" : "translate-x-full"}`}
-        >
-          {/* Header - updated button */}
-          <header className="flex h-15 items-center gap-4 border-b border-[#e9edef] bg-[#f0f2f5] px-4">
-            <button
-              onClick={() => setShowContactInfo(false)}
-              className="text-[#54656f] cursor-pointer"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <h2 className="text-base font-medium">Contact info</h2>
-          </header>
+      {activeSidebarTab === "contactInfo" && (
+        <ChatActionsSidebar
+          activeSidebarTab={activeSidebarTab}
+          setActiveSidebarTab={setActiveSidebarTab}
+          conversationId={conversationId}
+        />
+      )}
 
-          {children}
-        </aside>
+      {activeSidebarTab === "starredMessages" && (
+        <StarredMessages
+          conversationId={conversationId}
+          setActiveSidebarTab={setActiveSidebarTab}
+        />
       )}
     </>
   );
@@ -293,4 +257,7 @@ interface MessageItem {
   attachments: string[];
   updatedAt: string;
   senderId: string;
+  markAsStar: boolean;
 }
+
+export type ActiveSidebarTab = null | "contactInfo" | "starredMessages";

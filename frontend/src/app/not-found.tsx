@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 
-export default function NotFound() {
+export default function NotFoundPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 px-4">
       <section className="w-full max-w-2xl text-center">

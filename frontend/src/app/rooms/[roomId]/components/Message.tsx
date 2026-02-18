@@ -1,4 +1,4 @@
-import { CheckCheck } from "lucide-react";
+import { CheckCheck, Star } from "lucide-react";
 import Image from "next/image";
 interface MessageRowData {
   item: MessageItem;
@@ -11,6 +11,7 @@ interface MessageItem {
   attachments: string[];
   updatedAt: string;
   senderId: string;
+  markAsStar: boolean;
 }
 
 const Message = ({ item, conversationParticipantId }: MessageRowData) => {
@@ -29,6 +30,9 @@ const Message = ({ item, conversationParticipantId }: MessageRowData) => {
           <div
             className={`flex justify-end gap-1 mt-1 ${isReceiver ? "" : "items-center"}`}
           >
+            {item.markAsStar && (
+              <Star className="w-3 h-3 fill-gray-500 text-gray-500" />
+            )}
             <span className="text-[10px] text-gray-500">{item.updatedAt}</span>
 
             {!isReceiver && (

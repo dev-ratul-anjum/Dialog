@@ -96,6 +96,7 @@ const getConversationMessages = async (
       attachments: true,
       updatedAt: true,
       senderId: true,
+      markAsStar: true,
     },
   });
   const finalMessages = messages.map((msg) => {

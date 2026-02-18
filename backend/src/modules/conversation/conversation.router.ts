@@ -35,4 +35,11 @@ conversationRouter.get(
   conversationController.getConversationInfo,
 );
 
+// Get Conversation Star Messages
+conversationRouter.get(
+  "/v1/starred-messages/:conversationId",
+  checkAuth,
+  conversationController.getConversationStarMessages,
+);
+
 export default conversationRouter;
