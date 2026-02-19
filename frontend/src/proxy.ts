@@ -8,22 +8,37 @@ export const proxy = async (request: NextRequest) => {
 
   const isAuthPage = pathname === "/login" || pathname === "/sign-up";
 
+  // Skip non-protected and non-auth routes
+  if (
+    !isAuthPage &&
+    !protectedRoutes.includes(pathname) &&
+    !pathname.startsWith("/rooms/")
+  ) {
+    return NextResponse.next();
+  }
+
   const cookieHeader = await getDecodedCookies(); // Decode for signed cookie
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/v1/me`,
-    {
-      headers: {
-        Cookie: cookieHeader,
-      },
-    },
-  );
-  const result = await response.json();
+  let result = { success: false };
 
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/v1/me`,
+      {
+        headers: { Cookie: cookieHeader },
+      },
+    );
+    result = await response.json();
+  } catch (error) {
+    console.error("Auth check failed:", error);
+  }
+
+  // If logged in and trying to access auth pages
   if (result.success && isAuthPage) {
     return NextResponse.redirect(new URL("/rooms", request.url));
   }
 
+  // If not logged in and trying to access protected pages
   if (
     !result.success &&
     (protectedRoutes.includes(pathname) || pathname.startsWith("/rooms/"))
