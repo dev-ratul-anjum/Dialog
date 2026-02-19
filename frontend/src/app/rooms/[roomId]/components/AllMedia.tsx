@@ -2,21 +2,18 @@ import { useEffect, useRef } from "react";
 import { ArrowLeft, MoreVertical } from "lucide-react";
 import { ActiveSidebarTab } from "./ChatArea";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import StarredMessage, { StarredMessageItem } from "./StarredMessage";
-import StarredMessagesSkeletonList from "./StarredMessageSkeleton";
 import ChatLoadingSpinner from "./ChatLoadingSpinner";
+import Image from "next/image";
+import AttachmentsSkeleton from "./AttachmentsSkeleton";
 
-const StarredMessages = ({
-  conversationId,
-  setActiveSidebarTab,
-}: StarredMessagesProps) => {
+const AllMedia = ({ conversationId, setActiveSidebarTab }: AllMediaProps) => {
   const loaderRef = useRef(null);
   const { data, isLoading, fetchNextPage, isFetchingNextPage, hasNextPage } =
     useInfiniteQuery({
-      queryKey: ["starred-messages", conversationId],
+      queryKey: ["all-media", conversationId],
       queryFn: async ({ pageParam }) => {
         const res = await fetch(
-          `/api/proxy/message/v1/starred-messages/${conversationId}?page=${pageParam}`, // Proxy path
+          `/api/proxy/message/v1/all-media/${conversationId}?page=${pageParam}`, // Proxy path
           {
             credentials: "include", // Still needed for proxy to get cookies
           },
@@ -35,9 +32,10 @@ const StarredMessages = ({
       gcTime: 5 * 60_000,
     });
 
-  const allStarredMessages =
+  const allAttachmentMessages =
     data?.pages.flatMap((page) => page.data.messages) || [];
-  const currentUserId = data?.pages[0]?.currentUserId;
+  const allAttachments =
+    allAttachmentMessages.flatMap((msg) => msg.attachments) || [];
 
   useEffect(() => {
     const onIntersection = (entries: IntersectionObserverEntry[]) => {
@@ -71,9 +69,7 @@ const StarredMessages = ({
             >
               <ArrowLeft className="w-6 h-6 text-gray-600" />
             </button>
-            <h1 className="text-xl font-medium text-gray-800">
-              Starred messages
-            </h1>
+            <h1 className="text-xl font-medium text-gray-800">Media Gallery</h1>
           </div>
           <button
             className="p-1 rounded-full hover:bg-gray-100 transition-colors"
@@ -85,33 +81,47 @@ const StarredMessages = ({
 
         {/* Message List */}
         {isLoading ? (
-          <StarredMessagesSkeletonList />
-        ) : allStarredMessages.length > 0 ? (
+          <AttachmentsSkeleton count={4} />
+        ) : allAttachments.length > 0 ? (
           <section className="flex-1 overflow-y-auto custom-scrollbar">
             <ul className="flex flex-col pb-4">
-              {allStarredMessages.map((msg: StarredMessageItem) => (
-                <StarredMessage
-                  key={msg.id}
-                  item={msg}
-                  currentUserId={currentUserId}
-                />
-              ))}
+              <div
+                className={`grid gap-1 px-5 py-2 rounded-lg overflow-hidden mb-5 shrink-0 ${allAttachments.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
+              >
+                {allAttachments.map((url, idx) => (
+                  <div className="flex justify-center" key={idx}>
+                    <div className="w-full max-w-75 sm:max-w-100 h-auto rounded-lg overflow-hidden">
+                      <Image
+                        src={url}
+                        alt="user-attachments"
+                        width={400} // intrinsic width
+                        height={300} // intrinsic height
+                        style={{
+                          width: "100%",
+                          height: "auto",
+                          objectFit: "scale-down",
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </ul>
 
             {hasNextPage && <ChatLoadingSpinner ref={loaderRef} />}
           </section>
         ) : (
           <div className="container mx-auto px-4 py-8 text-center text-gray-500">
-            No starred messages found.
+            No media found.
           </div>
         )}
       </main>
     </div>
   );
 };
-export default StarredMessages;
+export default AllMedia;
 
-type StarredMessagesProps = {
+type AllMediaProps = {
   setActiveSidebarTab: (tab: ActiveSidebarTab) => void;
   conversationId: string;
 };

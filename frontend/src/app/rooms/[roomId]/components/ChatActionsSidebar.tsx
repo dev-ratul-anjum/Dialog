@@ -32,7 +32,6 @@ const ChatActionsSidebar = ({
     error,
   } = useConversationInfo(conversationId);
 
-  console.log("info : ", info);
   if (info?.success === false) {
     notFound();
   }
@@ -124,12 +123,13 @@ const ChatActionsSidebar = ({
         )}
 
         {/* Media Section */}
-        <div className="mb-2 flex cursor-pointer justify-between items-center bg-white p-4 shadow-sm hover:bg-gray-50">
-          <p className="text-sm font-medium text-[#667781]">
-            Media, links and docs
-          </p>
+        <div
+          className="mb-2 flex cursor-pointer justify-between items-center bg-white p-4 shadow-sm hover:bg-gray-50"
+          onClick={() => setActiveSidebarTab("allMedia")}
+        >
+          <p className="text-sm font-medium text-[#667781]">Media Gallery</p>
           <div className="flex items-center gap-1 text-[#667781]">
-            <span className="text-xs">3</span>
+            <span className="text-xs">{info?.data.totalAttachments}</span>
             <ChevronRight className="h-4 w-4" />
           </div>
         </div>

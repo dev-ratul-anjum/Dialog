@@ -201,76 +201,27 @@ const getConversationInfo = async (
       ? conversation.participant
       : conversation.creator;
 
+  const messages = await prisma.message.findMany({
+    where: {
+      conversationId,
+      attachments: { isEmpty: false },
+    },
+    select: {
+      attachments: true,
+    },
+  });
+
+  const totalAttachments = messages.reduce(
+    (sum, m) => sum + m.attachments.length,
+    0,
+  );
+
   return {
+    totalAttachments,
     participantName: otherUser.name,
     participantPhoto: otherUser.photo,
     participantEmail: otherUser.email,
     participantBio: otherUser.bio,
-  };
-};
-
-// Get Conversation Star Messages
-const getConversationStarMessages = async (
-  currentUserId: string,
-  conversationId: string,
-  page?: number,
-) => {
-  const pageNumber = page || 1;
-  const limit = 15;
-  const skip = (pageNumber - 1) * limit;
-
-  const where = {
-    conversationId,
-    markAsStar: true,
-    OR: [{ senderId: currentUserId }, { receiverId: currentUserId }],
-  };
-
-  const messagesCount = await prisma.message.count({
-    where,
-  });
-  const messages = await prisma.message.findMany({
-    where,
-    skip,
-    take: limit,
-    orderBy: {
-      updatedAt: "desc",
-    },
-    select: {
-      id: true,
-      text: true,
-      attachments: true,
-      updatedAt: true,
-      sender: {
-        select: {
-          id: true,
-          name: true,
-          photo: true,
-        },
-      },
-      receiver: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-    },
-  });
-
-  const totalPages = Math.ceil(messagesCount / limit);
-  const hasNextPage = totalPages > pageNumber;
-  const hasPrevPage = pageNumber > 1;
-
-  return {
-    currentUserId,
-    messages,
-    meta: {
-      totalMessages: messagesCount,
-      currentPage: pageNumber,
-      hasNextPage,
-      hasPrevPage,
-      nextPage: hasNextPage ? pageNumber + 1 : null,
-      prevPage: hasPrevPage ? pageNumber - 1 : null,
-    },
   };
 };
 
@@ -279,7 +230,6 @@ const conversationService = {
   deleteConversation,
   getConversations,
   getConversationInfo,
-  getConversationStarMessages,
 };
 
 export default conversationService;

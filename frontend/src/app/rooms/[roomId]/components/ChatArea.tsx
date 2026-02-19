@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import useConversationMessages from "@/hooks/useConversationMessages";
 import ChatActionsSidebar from "./ChatActionsSidebar";
 import StarredMessages from "./StarredMessages";
+import AllMedia from "./AllMedia";
 
 const ChatArea = ({ conversationId }: { conversationId: string }) => {
   const router = useRouter();
@@ -245,6 +246,13 @@ const ChatArea = ({ conversationId }: { conversationId: string }) => {
           setActiveSidebarTab={setActiveSidebarTab}
         />
       )}
+
+      {activeSidebarTab === "allMedia" && (
+        <AllMedia
+          conversationId={conversationId}
+          setActiveSidebarTab={setActiveSidebarTab}
+        />
+      )}
     </>
   );
 };
@@ -260,4 +268,8 @@ interface MessageItem {
   markAsStar: boolean;
 }
 
-export type ActiveSidebarTab = null | "contactInfo" | "starredMessages";
+export type ActiveSidebarTab =
+  | null
+  | "contactInfo"
+  | "starredMessages"
+  | "allMedia";

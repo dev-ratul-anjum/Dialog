@@ -4,6 +4,7 @@ import responseHandler from "$/utils/responseHandler.js";
 import { ApiError } from "$/middlewares/errorHandler.js";
 import messageService from "./message.service.js";
 import { uploadMultipleToCloudinary } from "$/utils/fileUploader.js";
+import { resolve } from "node:path";
 
 const createMessage = catchAsync(async (req: Request, res: Response) => {
   const senderId = req.user?.id!;
@@ -68,10 +69,60 @@ const getConversationMessages = catchAsync(
   },
 );
 
+// Get Conversation Star Messages
+const getConversationStarMessages = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user?.id!;
+    const conversationId = req.params.conversationId;
+    const { page } = req.query;
+    const pageNumber = !isNaN(Number(page)) ? Number(page) : undefined;
+
+    if (!conversationId || typeof conversationId !== "string") {
+      throw new ApiError(400, "Required parameters not provided");
+    }
+    const data = await messageService.getConversationStarMessages(
+      userId,
+      conversationId,
+      pageNumber,
+    );
+
+    return responseHandler(res, 200, {
+      success: true,
+      message: "Conversation star messages retrive Successfully!",
+      data,
+    });
+  },
+);
+
+// Get Conversation All Media
+const getConversationMedia = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id!;
+  const conversationId = req.params.conversationId;
+  const { page } = req.query;
+  const pageNumber = !isNaN(Number(page)) ? Number(page) : undefined;
+
+  if (!conversationId || typeof conversationId !== "string") {
+    throw new ApiError(400, "Required parameters not provided");
+  }
+  const data = await messageService.getConversationMedia(
+    userId,
+    conversationId,
+    pageNumber,
+  );
+
+  return responseHandler(res, 200, {
+    success: true,
+    message: "Conversation media retrive Successfully!",
+    data,
+  });
+});
+
 const messageController = {
   createMessage,
   deleteMessage,
   getConversationMessages,
+  getConversationStarMessages,
+  getConversationMedia,
 };
 
 export default messageController;

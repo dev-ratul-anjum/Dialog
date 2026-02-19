@@ -35,4 +35,18 @@ messageRouter.get(
   messageController.getConversationMessages,
 );
 
+// Get Conversation Star Messages
+messageRouter.get(
+  "/v1/starred-messages/:conversationId",
+  checkAuth,
+  messageController.getConversationStarMessages,
+);
+
+// Get Conversation All Media
+messageRouter.get(
+  "/v1/all-media/:conversationId",
+  checkAuth,
+  messageController.getConversationMedia,
+);
+
 export default messageRouter;
