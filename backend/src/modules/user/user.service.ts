@@ -2,7 +2,10 @@ import bcrypt from "bcryptjs";
 import { ApiError } from "$/middlewares/errorHandler.js";
 import { prisma } from "$/prisma/prisma.js";
 import { uploadToCloudinary } from "$/utils/fileUploader.js";
-import { TRegisterUserSchema } from "./user.schema.js";
+import {
+  TRegisterUserSchema,
+  TUpdateUserProfileSchema,
+} from "./user.schema.js";
 import { Prisma } from "$/prisma/generated/client.js";
 
 const registerUser = async (
@@ -114,9 +117,29 @@ const getUsersForAddNewChat = async (
   };
 };
 
+// Update User Profile
+const updateUserProfile = async (
+  currentUserId: string,
+  data: TUpdateUserProfileSchema,
+  photo?: string,
+) => {
+  if (photo || data.name || data.bio) {
+    await prisma.user.update({
+      where: {
+        id: currentUserId,
+      },
+      data: {
+        ...data,
+        photo,
+      },
+    });
+  }
+};
+
 const userService = {
   registerUser,
   getUsersForAddNewChat,
+  updateUserProfile,
 };
 
 export default userService;

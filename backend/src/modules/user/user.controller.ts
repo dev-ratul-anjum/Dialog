@@ -4,6 +4,7 @@ import responseHandler from "$/utils/responseHandler.js";
 import userService from "./user.service.js";
 import { createJwtToken, setAuthCookie } from "$/utils/authHelpers.js";
 import { ApiError } from "$/middlewares/errorHandler.js";
+import { uploadToCloudinary } from "$/utils/fileUploader.js";
 
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   const newUser = await userService.registerUser(req.body, req.file);
@@ -44,9 +45,28 @@ const getUsersForAddNewChat = catchAsync(
   },
 );
 
+// Update User Profile
+const updateUserProfile = catchAsync(async (req: Request, res: Response) => {
+  let photo: undefined | string = undefined;
+  if (req.file) {
+    const result = await uploadToCloudinary(req.file);
+    photo = result.secure_url;
+  }
+
+  const userId = req.user?.id;
+
+  await userService.updateUserProfile(userId!, req.body, photo);
+
+  return responseHandler(res, 200, {
+    success: true,
+    message: "Profile updated successfull!",
+  });
+});
+
 const userController = {
   registerUser,
   getUsersForAddNewChat,
+  updateUserProfile,
 };
 
 export default userController;

@@ -39,6 +39,7 @@ const getCurrentUser = catchAsync(async (req: Request, res: Response) => {
       name: true,
       email: true,
       photo: true,
+      bio: true,
     },
   });
 

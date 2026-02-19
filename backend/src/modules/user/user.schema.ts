@@ -21,4 +21,10 @@ export const registerUserSchema = z.object({
     }),
 });
 
+export const updateUserProfileSchema = z.object({
+  name: z.string().trim().optional(),
+  bio: z.string().trim().optional(),
+});
+
 export type TRegisterUserSchema = z.infer<typeof registerUserSchema>;
+export type TUpdateUserProfileSchema = z.infer<typeof updateUserProfileSchema>;
