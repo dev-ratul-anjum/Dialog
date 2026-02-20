@@ -115,6 +115,23 @@ const checkBlockUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// Report User
+const reportUser = catchAsync(async (req: Request, res: Response) => {
+  const reporterId = req.user?.id;
+  const reportedUserId = req.params.reportedUserId;
+
+  if (!reportedUserId || typeof reportedUserId !== "string") {
+    throw new ApiError(400, "Required parameters not provided");
+  }
+
+  await userService.reportUser(reporterId!, reportedUserId);
+
+  return responseHandler(res, 200, {
+    success: true,
+    message: "Report successfull!",
+  });
+});
+
 const userController = {
   registerUser,
   getUsersForAddNewChat,
@@ -122,6 +139,7 @@ const userController = {
   blockUser,
   unblockUser,
   checkBlockUser,
+  reportUser,
 };
 
 export default userController;

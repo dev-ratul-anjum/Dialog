@@ -202,6 +202,20 @@ const checkBlockUser = async (blockerId: string, blockedId: string) => {
   };
 };
 
+// Report User
+const reportUser = async (reporterId: string, reportedUserId: string) => {
+  if (reporterId === reportedUserId) {
+    throw new ApiError(400, "Cannot report yourself");
+  }
+
+  await prisma.userReport.create({
+    data: {
+      reporterId,
+      reportedUserId,
+    },
+  });
+};
+
 const userService = {
   registerUser,
   getUsersForAddNewChat,
@@ -209,6 +223,7 @@ const userService = {
   blockUser,
   unblockUser,
   checkBlockUser,
+  reportUser,
 };
 
 export default userService;

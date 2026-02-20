@@ -1,6 +1,7 @@
 "use client";
 import blockUser from "@/actions/blockUser";
 import deleteConversation from "@/actions/deleteConversation";
+import reportUser from "@/actions/reportUser";
 import unblockUser from "@/actions/unblockUser";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import { useQueryClient } from "@tanstack/react-query";
@@ -26,6 +27,7 @@ const ConversationActionButtons = ({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState<boolean>(false);
   const [isUnblockModalOpen, setIsUnblockModalOpen] = useState<boolean>(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
   const handleDelete = async () => {
@@ -92,6 +94,26 @@ const ConversationActionButtons = ({
       setIsUnblockModalOpen(false);
     }
   };
+
+  const handleReport = async () => {
+    const res = await reportUser(participantId);
+
+    if (res?.success) {
+      toast.success("Report submitted successfully.", {
+        className:
+          "bg-[#00875F] text-white rounded-md shadow-md px-4 py-2 text-sm",
+        progressClassName: "bg-white/50",
+      });
+      setIsReportModalOpen(false);
+    } else {
+      toast.error(res?.message, {
+        className:
+          "bg-[#C53030] text-white rounded-md shadow-md px-4 py-2 text-sm",
+        progressClassName: "bg-white/50",
+      });
+      setIsReportModalOpen(false);
+    }
+  };
   return (
     <div className="mb-4 flex flex-col bg-white shadow-sm">
       {(!data.isBlocked || !data.blockedByMe) && (
@@ -114,7 +136,10 @@ const ConversationActionButtons = ({
         </button>
       )}
 
-      <button className="flex items-center gap-4 border-t border-[#e9edef] px-4 py-3 font-medium text-red-500 hover:bg-gray-50 cursor-pointer">
+      <button
+        className="flex items-center gap-4 border-t border-[#e9edef] px-4 py-3 font-medium text-red-500 hover:bg-gray-50 cursor-pointer"
+        onClick={() => setIsReportModalOpen(true)}
+      >
         <ThumbsDown className="h-5 w-5" />
         <span>Report {participantName}</span>
       </button>
@@ -155,6 +180,16 @@ const ConversationActionButtons = ({
         description={`Unblocking will allow ${participantName} to send you messages again.`}
         cancelValue="Cancel"
         confirmValue="Yes, Unblock"
+      />
+
+      <ConfirmationModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        onConfirm={handleReport}
+        title={`Report ${participantName}?`}
+        description={`Reporting this user will notify our moderation team. This action cannot be undone. If the report violates our community guidelines, appropriate action will be taken.`}
+        cancelValue="Cancel"
+        confirmValue="Yes, Report"
       />
     </div>
   );

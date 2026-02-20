@@ -55,4 +55,10 @@ userRouter.get(
   userController.checkBlockUser,
 );
 
+// Report User
+userRouter.post(
+  "/v1/report/:reportedUserId",
+  checkAuth,
+  userController.reportUser,
+);
 export default userRouter;
