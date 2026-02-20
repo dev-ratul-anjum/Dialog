@@ -1,3 +1,7 @@
+"use client";
+import logoutUser from "@/actions/logoutUser";
+import ConfirmationModal from "@/components/ConfirmationModal";
+import useProfileDetails from "@/hooks/useProfileDetails";
 import {
   Bell,
   HelpCircle,
@@ -11,8 +15,28 @@ import {
   UserIcon,
   Video,
 } from "lucide-react";
+import Image from "next/image";
+import { redirect } from "next/navigation";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 const Settings = () => {
+  const { data: profile, isLoading } = useProfileDetails();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
+
+  const handleLogout = async () => {
+    const res = await logoutUser();
+
+    if (res?.success) {
+      redirect("/login");
+    } else {
+      toast.error(res?.message, {
+        className:
+          "bg-[#C53030] text-white rounded-md shadow-md px-4 py-2 text-sm",
+        progressClassName: "bg-white/50",
+      });
+    }
+  };
   return (
     <div className="flex flex-col h-full bg-[#f0f2f5] animate-in slide-in-from-left duration-200">
       <header className="flex h-15 items-center px-4 bg-white border-b border-[#d1d7db]">
@@ -30,15 +54,38 @@ const Settings = () => {
       </div>
       <div className="flex-1 overflow-y-auto custom-scrollbar bg-white">
         <div className="flex items-center gap-4 px-4 py-3 hover:bg-[#f5f6f6] cursor-pointer">
-          <div className="h-12 w-12 rounded-full overflow-hidden bg-gray-200">
-            <UserIcon className="h-12 w-12 text-[#919191]" />
-          </div>
-          <div className="flex-1">
-            <p className="font-medium">Ratul Anjum</p>
-            <p className="text-sm text-[#667781]">
-              Hey there! I am using WhatsApp.
-            </p>
-          </div>
+          {profile?.photo ? (
+            <div className="relative h-12 w-12 cursor-pointer overflow-hidden rounded-full">
+              <Image
+                src={profile.photo}
+                alt="My Profile"
+                className="h-full w-full object-cover"
+                width={100}
+                height={100}
+              />
+            </div>
+          ) : (
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-300 text-white">
+              <UserIcon className="h-6 w-6" />
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="flex-1 animate-pulse space-y-2">
+              {/* Name */}
+              <div className="h-4 w-32 rounded bg-gray-200" />
+
+              {/* Bio */}
+              <div className="h-3 w-56 rounded bg-gray-200" />
+            </div>
+          ) : (
+            <div className="flex-1">
+              <p className="font-medium">{profile?.name}</p>
+              <p className="text-sm text-[#667781]">
+                {profile?.bio ? profile.bio : "Hey there! I am using Dialog."}
+              </p>
+            </div>
+          )}
         </div>
         {[
           { icon: Monitor, label: "General", sub: "Startup and close" },
@@ -89,10 +136,23 @@ const Settings = () => {
             </div>
           </div>
         ))}
-        <div className="flex items-center gap-5 px-6 py-4 text-red-500 hover:bg-[#f5f6f6] cursor-pointer">
+        <div
+          className="flex items-center gap-5 px-6 py-4 text-red-500 hover:bg-[#f5f6f6] cursor-pointer"
+          onClick={() => setIsLogoutModalOpen(true)}
+        >
           <LogOut className="h-5 w-5" />
           <span className="font-medium">Log out</span>
         </div>
+
+        <ConfirmationModal
+          isOpen={isLogoutModalOpen}
+          onClose={() => setIsLogoutModalOpen(false)}
+          onConfirm={handleLogout}
+          title="Log out?"
+          description="You’ll be signed out of your account and will need to log in again to continue."
+          cancelValue="Cancel"
+          confirmValue="Yes, Log out"
+        />
       </div>
     </div>
   );

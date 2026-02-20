@@ -26,7 +26,7 @@ const Conversation = ({
           alt="User"
           width={48}
           height={48}
-          className="rounded-full object-cover"
+          className="rounded-full w-12 h-12 object-cover"
         />
       ) : (
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-300 text-white">

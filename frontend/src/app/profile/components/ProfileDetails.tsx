@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ImageIcon, Pencil, UserIcon, X } from "lucide-react";
 import Image from "next/image";
 import ProfileDetailsSkeleton from "./ProfileDetailsSkeleton";
@@ -8,20 +8,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import updateProfile from "@/actions/updateProfile";
+import useProfileDetails from "@/hooks/useProfileDetails";
 
 const ProfileDetails = () => {
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      const res = await fetch("/api/proxy/auth/v1/me", {
-        credentials: "include",
-      });
-      const result = await res.json();
-
-      return result?.data;
-    },
-    staleTime: Infinity,
-  });
+  const { data: profile, isLoading } = useProfileDetails();
 
   const [editMode, setEditMode] = useState<boolean>(false);
   const [profileInfo, setProfileInfo] = useState<{
@@ -143,7 +133,7 @@ const ProfileDetails = () => {
                 <Image
                   src={profileInfo.imageUrl}
                   alt="Profile"
-                  className="rounded-full object-cover"
+                  className="rounded-full h-50 w-50 object-cover"
                   height={200}
                   width={200}
                 />
@@ -151,7 +141,7 @@ const ProfileDetails = () => {
                 <Image
                   src={profile.photo}
                   alt="Profile"
-                  className="rounded-full object-cover"
+                  className="rounded-full h-50 w-50 object-cover"
                   height={200}
                   width={200}
                 />

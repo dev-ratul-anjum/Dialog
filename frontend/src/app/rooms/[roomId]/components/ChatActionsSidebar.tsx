@@ -66,7 +66,7 @@ const ChatActionsSidebar = ({
                 <Image
                   src={info.data.participantPhoto}
                   alt="Profile"
-                  className="mb-4 rounded-full object-cover"
+                  className="mb-4 rounded-full w-37.5 h-37.5 object-cover"
                   height={150}
                   width={150}
                 />

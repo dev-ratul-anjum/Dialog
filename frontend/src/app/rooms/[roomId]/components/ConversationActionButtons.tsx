@@ -116,7 +116,7 @@ const ConversationActionButtons = ({
   };
   return (
     <div className="mb-4 flex flex-col bg-white shadow-sm">
-      {(!data.isBlocked || !data.blockedByMe) && (
+      {(!data?.isBlocked || !data?.blockedByMe) && (
         <button
           className="flex items-center gap-4 px-4 py-3 font-medium text-red-500 hover:bg-gray-50 cursor-pointer"
           onClick={() => setIsBlockModalOpen(true)}
@@ -126,7 +126,7 @@ const ConversationActionButtons = ({
         </button>
       )}
 
-      {data.isBlocked && data.blockedByMe && (
+      {data?.isBlocked && data?.blockedByMe && (
         <button
           className="flex items-center gap-4 px-4 py-3 font-medium text-red-500 hover:bg-gray-50 cursor-pointer"
           onClick={() => setIsUnblockModalOpen(true)}
