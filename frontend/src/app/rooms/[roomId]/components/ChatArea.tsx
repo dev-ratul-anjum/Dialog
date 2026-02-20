@@ -175,7 +175,7 @@ const ChatArea = ({ conversationId }: { conversationId: string }) => {
                   e.stopPropagation();
                   router.push("/rooms");
                 }}
-                className="mr-1 text-[#54656f] md:hidden"
+                className="mr-1 text-[#54656f] md:hidden cursor-pointer"
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
@@ -228,7 +228,7 @@ const ChatArea = ({ conversationId }: { conversationId: string }) => {
         {isLoading ? (
           <MessageAreaSkeleton />
         ) : (
-          <section className="custom-scrollbar flex flex-1 flex-col-reverse gap-2 overflow-y-auto p-4">
+          <section className="custom-scrollbar flex flex-1 flex-col-reverse gap-2 overflow-y-auto p-4 pb-0">
             <div ref={bottomRef} />
             {allMessages.map((msg: MessageItem) => (
               <Message

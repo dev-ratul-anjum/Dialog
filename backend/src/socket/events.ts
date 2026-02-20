@@ -16,6 +16,14 @@ const registerSocketEvents = (io: Server, socket: Socket) => {
       io.to(conversationId).emit("new-message", newMessage);
     },
   );
+
+  socket.on("start-typing", (conversationId: string) => {
+    socket.to(conversationId).emit("start-typing");
+  });
+
+  socket.on("stop-typing", (conversationId: string) => {
+    socket.to(conversationId).emit("stop-typing");
+  });
 };
 
 export default registerSocketEvents;

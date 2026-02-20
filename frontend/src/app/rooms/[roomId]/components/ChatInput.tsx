@@ -3,8 +3,9 @@ import addMessage from "@/actions/addMessage";
 import { useSocket } from "@/providers/SocketProvider";
 import { Loader2, Plus, SendHorizontal, Smile, X } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import TypingIndicator from "./TypingIndicator";
 
 const ChatInput = ({
   receiverId,
@@ -32,6 +33,9 @@ const ChatInput = ({
     maxSize: string;
   }>({ allowedType: "", maxSize: "" });
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [isTyping, setIsTyping] = useState<boolean>(false);
+  const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleAddMessage = async () => {
     setLoading(true);
@@ -132,6 +136,37 @@ const ChatInput = ({
     }
   };
 
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (!isTyping) socket?.emit("start-typing", conversationId);
+
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    typingTimeout.current = setTimeout(() => {
+      socket?.emit("stop-typing", conversationId);
+    }, 300);
+
+    setMessage(e.target.value);
+  };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleStartTyping = () => {
+      setIsTyping(true);
+    };
+    socket.on("start-typing", handleStartTyping);
+
+    const handleStopTyping = () => {
+      setIsTyping(false);
+    };
+    socket.on("stop-typing", handleStopTyping);
+
+    return () => {
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+      socket.off("start-typing", handleStartTyping);
+      socket.off("stop-typing", handleStopTyping);
+    };
+  }, [socket]);
+
   return (
     <>
       {isLoading || data === undefined ? (
@@ -150,6 +185,7 @@ const ChatInput = ({
         </div>
       ) : (
         <>
+          {isTyping && <TypingIndicator />}
           {attachments.length > 0 && (
             <div
               id="preview-container"
@@ -222,7 +258,7 @@ const ChatInput = ({
 
               <textarea
                 value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={(e) => handleTextChange(e)}
                 placeholder="Type a message"
                 rows={1}
                 className="max-h-25 min-h-6 h-auto flex-1 resize-none border-none bg-transparent py-1 text-sm outline-none placeholder-[#667781] custom-scrollbar leading-6"
