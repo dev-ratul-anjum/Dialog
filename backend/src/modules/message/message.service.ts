@@ -1,6 +1,7 @@
 import { ApiError } from "$/middlewares/errorHandler.js";
 import { Prisma } from "$/prisma/generated/client.js";
 import { prisma } from "$/prisma/prisma.js";
+import isBlocked from "$/services/block.service.js";
 import { formatContextualDateTime } from "$/utils/dateFormatter.js";
 import { TCreateMessageSchema } from "./message.schema.js";
 
@@ -9,6 +10,11 @@ const createMessage = async (
   senderId: string,
   attachments: string[],
 ) => {
+  const blocked = await isBlocked(senderId, data.receiverId);
+  if (blocked) {
+    throw new ApiError(403, "You cannot message this user");
+  }
+
   const newMessage = await prisma.message.create({
     data: {
       ...(data.text ? { text: data.text } : {}),

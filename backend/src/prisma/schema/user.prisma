@@ -13,6 +13,8 @@ model User {
   participatingConversations Conversation[] @relation("ConversationParticipant")
   sentMessages               Message[]      @relation("MessageSender")
   receivedMessages           Message[]      @relation("MessageReceiver")
+  blockedBy                  UserBlock[]    @relation("blockedBy")
+  blocking                   UserBlock[]    @relation("blocking")
 
   @@map("users")
 }

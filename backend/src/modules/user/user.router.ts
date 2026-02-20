@@ -38,4 +38,14 @@ userRouter.patch(
   userController.updateUserProfile,
 );
 
+// Block User
+userRouter.post("/v1/block/:blockedId", checkAuth, userController.blockUser);
+
+// Unblock User
+userRouter.delete(
+  "/v1/unblock/:blockedId",
+  checkAuth,
+  userController.unblockUser,
+);
+
 export default userRouter;

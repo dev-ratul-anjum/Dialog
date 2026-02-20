@@ -63,10 +63,46 @@ const updateUserProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// Block User
+const blockUser = catchAsync(async (req: Request, res: Response) => {
+  const blockerId = req.user?.id;
+  const blockedId = req.params.blockedId;
+
+  if (!blockedId || typeof blockedId !== "string") {
+    throw new ApiError(400, "Required parameters not provided");
+  }
+
+  await userService.blockUser(blockerId!, blockedId);
+
+  return responseHandler(res, 200, {
+    success: true,
+    message: "Blocked successfull!",
+  });
+});
+
+// Unblock User
+const unblockUser = catchAsync(async (req: Request, res: Response) => {
+  const blockerId = req.user?.id;
+  const blockedId = req.params.blockedId;
+
+  if (!blockedId || typeof blockedId !== "string") {
+    throw new ApiError(400, "Required parameters not provided");
+  }
+
+  await userService.unblockUser(blockerId!, blockedId);
+
+  return responseHandler(res, 200, {
+    success: true,
+    message: "Unblocked successfull!",
+  });
+});
+
 const userController = {
   registerUser,
   getUsersForAddNewChat,
   updateUserProfile,
+  blockUser,
+  unblockUser,
 };
 
 export default userController;

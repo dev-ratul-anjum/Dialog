@@ -136,10 +136,38 @@ const updateUserProfile = async (
   }
 };
 
+// Block User
+const blockUser = async (blockerId: string, blockedId: string) => {
+  if (blockerId === blockedId) {
+    throw new ApiError(400, "Cannot block yourself");
+  }
+
+  await prisma.userBlock.create({
+    data: {
+      blockerId,
+      blockedId,
+    },
+  });
+};
+
+// Unblock User
+const unblockUser = async (blockerId: string, blockedId: string) => {
+  await prisma.userBlock.delete({
+    where: {
+      blockerId_blockedId: {
+        blockerId,
+        blockedId,
+      },
+    },
+  });
+};
+
 const userService = {
   registerUser,
   getUsersForAddNewChat,
   updateUserProfile,
+  blockUser,
+  unblockUser,
 };
 
 export default userService;
