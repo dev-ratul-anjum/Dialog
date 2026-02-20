@@ -7,6 +7,7 @@ import {
   TUpdateUserProfileSchema,
 } from "./user.schema.js";
 import { Prisma } from "$/prisma/generated/client.js";
+import isBlocked from "$/services/block.service.js";
 
 const registerUser = async (
   data: TRegisterUserSchema,
@@ -162,12 +163,52 @@ const unblockUser = async (blockerId: string, blockedId: string) => {
   });
 };
 
+// Check Block User
+const checkBlockUser = async (blockerId: string, blockedId: string) => {
+  let block = await prisma.userBlock.findFirst({
+    where: { blockerId, blockedId },
+    select: {
+      blockerId: true,
+      blocker: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  if (!block) {
+    block = await prisma.userBlock.findFirst({
+      where: { blockerId: blockedId, blockedId: blockerId },
+
+      select: {
+        blockerId: true,
+        blocker: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+  }
+
+  if (!block) {
+    return { isBlocked: false };
+  }
+  return {
+    isBlocked: true,
+    blockedByMe: block.blockerId === blockerId,
+    blockerName: block.blocker.name,
+  };
+};
+
 const userService = {
   registerUser,
   getUsersForAddNewChat,
   updateUserProfile,
   blockUser,
   unblockUser,
+  checkBlockUser,
 };
 
 export default userService;

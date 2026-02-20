@@ -83,7 +83,7 @@ const ChatList = () => {
         <h1 className="text-2xl font-bold tracking-tight">Chats</h1>
         <div className="flex gap-3 text-[#54656f]">
           <button>
-            <Link prefetch={false} href="/add-chat">
+            <Link href="/add-chat">
               <SquarePen className="h-5 w-5" />
             </Link>
           </button>

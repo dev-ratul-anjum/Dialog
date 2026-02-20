@@ -48,4 +48,11 @@ userRouter.delete(
   userController.unblockUser,
 );
 
+// Check Block User
+userRouter.get(
+  "/v1/check-block/:blockedId",
+  checkAuth,
+  userController.checkBlockUser,
+);
+
 export default userRouter;

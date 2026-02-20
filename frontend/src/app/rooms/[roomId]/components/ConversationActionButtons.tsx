@@ -1,5 +1,7 @@
 "use client";
+import blockUser from "@/actions/blockUser";
 import deleteConversation from "@/actions/deleteConversation";
+import unblockUser from "@/actions/unblockUser";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { Ban, ThumbsDown, Trash2 } from "lucide-react";
@@ -10,11 +12,20 @@ import { toast } from "react-toastify";
 const ConversationActionButtons = ({
   conversationId,
   participantName,
+  participantId,
+  data,
 }: {
   conversationId: string;
   participantName: string;
+  participantId: string;
+  data: {
+    isBlocked: boolean;
+    blockedByMe: boolean;
+  };
 }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState<boolean>(false);
+  const [isUnblockModalOpen, setIsUnblockModalOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
   const handleDelete = async () => {
@@ -39,12 +50,70 @@ const ConversationActionButtons = ({
       setIsDeleteModalOpen(false);
     }
   };
+
+  const handleBlock = async () => {
+    const res = await blockUser(participantId);
+
+    if (res?.success) {
+      toast.success("User successfully blocked.", {
+        className:
+          "bg-[#00875F] text-white rounded-md shadow-md px-4 py-2 text-sm",
+        progressClassName: "bg-white/50",
+      });
+      setIsBlockModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["block-info"] });
+    } else {
+      toast.error(res?.message, {
+        className:
+          "bg-[#C53030] text-white rounded-md shadow-md px-4 py-2 text-sm",
+        progressClassName: "bg-white/50",
+      });
+      setIsBlockModalOpen(false);
+    }
+  };
+
+  const handleUnblock = async () => {
+    const res = await unblockUser(participantId);
+
+    if (res?.success) {
+      toast.success("User unblocked successfully.", {
+        className:
+          "bg-[#00875F] text-white rounded-md shadow-md px-4 py-2 text-sm",
+        progressClassName: "bg-white/50",
+      });
+      setIsUnblockModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["block-info"] });
+    } else {
+      toast.error(res?.message, {
+        className:
+          "bg-[#C53030] text-white rounded-md shadow-md px-4 py-2 text-sm",
+        progressClassName: "bg-white/50",
+      });
+      setIsUnblockModalOpen(false);
+    }
+  };
   return (
     <div className="mb-4 flex flex-col bg-white shadow-sm">
-      <button className="flex items-center gap-4 px-4 py-3 font-medium text-red-500 hover:bg-gray-50 cursor-pointer">
-        <Ban className="h-5 w-5" />
-        <span>Block {participantName}</span>
-      </button>
+      {(!data.isBlocked || !data.blockedByMe) && (
+        <button
+          className="flex items-center gap-4 px-4 py-3 font-medium text-red-500 hover:bg-gray-50 cursor-pointer"
+          onClick={() => setIsBlockModalOpen(true)}
+        >
+          <Ban className="h-5 w-5" />
+          <span>Block {participantName}</span>
+        </button>
+      )}
+
+      {data.isBlocked && data.blockedByMe && (
+        <button
+          className="flex items-center gap-4 px-4 py-3 font-medium text-red-500 hover:bg-gray-50 cursor-pointer"
+          onClick={() => setIsUnblockModalOpen(true)}
+        >
+          <Ban className="h-5 w-5" />
+          <span>Unblock {participantName}</span>
+        </button>
+      )}
+
       <button className="flex items-center gap-4 border-t border-[#e9edef] px-4 py-3 font-medium text-red-500 hover:bg-gray-50 cursor-pointer">
         <ThumbsDown className="h-5 w-5" />
         <span>Report {participantName}</span>
@@ -62,6 +131,30 @@ const ConversationActionButtons = ({
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
+        title="Delete entire conversation?"
+        description="Are you sure you want to delete this chat? This action cannot be undone and all message history will be permanently lost."
+        cancelValue="Cancel"
+        confirmValue="Yes, Delete Chat"
+      />
+
+      <ConfirmationModal
+        isOpen={isBlockModalOpen}
+        onClose={() => setIsBlockModalOpen(false)}
+        onConfirm={handleBlock}
+        title={`Are you sure you want to block ${participantName}?`}
+        description={`Blocking will stop all messaging between you and ${participantName} until the block is removed.`}
+        cancelValue="Cancel"
+        confirmValue="Yes, Block"
+      />
+
+      <ConfirmationModal
+        isOpen={isUnblockModalOpen}
+        onClose={() => setIsUnblockModalOpen(false)}
+        onConfirm={handleUnblock}
+        title={`Are you sure you want to unblock ${participantName}?`}
+        description={`Unblocking will allow ${participantName} to send you messages again.`}
+        cancelValue="Cancel"
+        confirmValue="Yes, Unblock"
       />
     </div>
   );

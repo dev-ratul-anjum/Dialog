@@ -14,6 +14,10 @@ const ConfirmationModal = ({
   isOpen,
   onClose,
   onConfirm,
+  title,
+  description,
+  cancelValue,
+  confirmValue,
 }: ConfirmationModalProps) => {
   return isOpen
     ? createPortal(
@@ -70,14 +74,10 @@ const ConfirmationModal = ({
                   className="text-xl font-bold text-gray-900 mb-2"
                   id="modal-title"
                 >
-                  Delete entire conversation?
+                  {title}
                 </h3>
                 <div className="mt-2">
-                  <p className="text-sm text-gray-500">
-                    Are you sure you want to delete this chat? This action
-                    cannot be undone and all message history will be permanently
-                    lost.
-                  </p>
+                  <p className="text-sm text-gray-500">{description}</p>
                 </div>
               </div>
 
@@ -88,14 +88,14 @@ const ConfirmationModal = ({
                   onClick={onClose}
                   className="w-full sm:w-auto sm:flex-1 inline-flex justify-center items-center rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
                 >
-                  Cancel
+                  {cancelValue}
                 </button>
                 <button
                   type="button"
                   onClick={onConfirm}
                   className="w-full sm:w-auto sm:flex-1 inline-flex justify-center items-center rounded-xl border border-transparent bg-red-600 px-4 py-3 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
                 >
-                  Yes, Delete Chat
+                  {confirmValue}
                 </button>
               </div>
             </div>
@@ -112,101 +112,8 @@ type ConfirmationModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  title: string;
+  description: string;
+  cancelValue: string;
+  confirmValue: string;
 };
-
-// --- DEMO APPLICATION ---
-// This part simulates a Next.js Page using the component above
-
-// export default function App() {
-//   const [isModalOpen, setIsModalOpen] = useState(false);
-//   const [status, setStatus] = useState("");
-
-//   const handleDelete = () => {
-//     setStatus("Deleting...");
-
-//     // Simulate API call
-//     setTimeout(() => {
-//       setIsModalOpen(false);
-//       setStatus("Chat deleted successfully!");
-
-//       // Clear status message after a few seconds
-//       setTimeout(() => setStatus(""), 3000);
-//     }, 1000);
-//   };
-
-//   return (
-//     <div
-//       className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4"
-//       style={{ fontFamily: '"Ubuntu", sans-serif' }}
-//     >
-//       {/* Load Font Helper (In Next.js use next/font instead) */}
-//       <link
-//         href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap"
-//         rel="stylesheet"
-//       />
-
-//       {/* Main UI Card */}
-//       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100 text-center">
-//         <div className="mb-6">
-//           <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-//             <svg
-//               xmlns="http://www.w3.org/2000/svg"
-//               className="h-8 w-8"
-//               fill="none"
-//               viewBox="0 0 24 24"
-//               stroke="currentColor"
-//             >
-//               <path
-//                 strokeLinecap="round"
-//                 strokeLinejoin="round"
-//                 strokeWidth="2"
-//                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-//               />
-//             </svg>
-//           </div>
-//           <h1 className="text-2xl font-bold text-gray-800 mb-2">
-//             Chat Settings
-//           </h1>
-//           <p className="text-gray-500">
-//             Manage your conversation history and settings here.
-//           </p>
-//         </div>
-
-//         <button
-//           onClick={() => setIsModalOpen(true)}
-//           className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 shadow-md hover:shadow-lg"
-//         >
-//           <svg
-//             xmlns="http://www.w3.org/2000/svg"
-//             className="h-5 w-5 mr-2 group-hover:animate-pulse"
-//             fill="none"
-//             viewBox="0 0 24 24"
-//             stroke="currentColor"
-//           >
-//             <path
-//               strokeLinecap="round"
-//               strokeLinejoin="round"
-//               strokeWidth="2"
-//               d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-//             />
-//           </svg>
-//           Delete Chat History
-//         </button>
-
-//         {/* Status Toast */}
-//         {status && (
-//           <div className="mt-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm font-medium animate-pulse">
-//             {status}
-//           </div>
-//         )}
-//       </div>
-
-//       {/* The Reusable Component */}
-//       <DeleteConfirmationModal
-//         isOpen={isModalOpen}
-//         onClose={() => setIsModalOpen(false)}
-//         onConfirm={handleDelete}
-//       />
-//     </div>
-//   );
-// }

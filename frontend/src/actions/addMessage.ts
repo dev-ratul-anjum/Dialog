@@ -33,8 +33,11 @@ const addMessage = async (
       },
     );
     const result = await res.json();
-
-    return { success: result.success, newMessage: result.data };
+    if (result.success) {
+      return { success: result.success, newMessage: result.data };
+    } else {
+      return { success: result.success, message: result.message };
+    }
   } catch (error) {
     let message: string;
     if (error instanceof Error) {

@@ -218,6 +218,7 @@ const getConversationInfo = async (
 
   return {
     totalAttachments,
+    participantId: otherUser.id,
     participantName: otherUser.name,
     participantPhoto: otherUser.photo,
     participantEmail: otherUser.email,

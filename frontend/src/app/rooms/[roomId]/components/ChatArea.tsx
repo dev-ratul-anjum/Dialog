@@ -22,6 +22,7 @@ import useConversationMessages from "@/hooks/useConversationMessages";
 import ChatActionsSidebar from "./ChatActionsSidebar";
 import StarredMessages from "./StarredMessages";
 import AllMedia from "./AllMedia";
+import { useQuery } from "@tanstack/react-query";
 
 const ChatArea = ({ conversationId }: { conversationId: string }) => {
   const router = useRouter();
@@ -42,6 +43,22 @@ const ChatArea = ({ conversationId }: { conversationId: string }) => {
   } = useConversationMessages(conversationId);
 
   const conversationParticipantId = data?.pages[0].data.participantId;
+
+  const { data: blockInfo, isLoading: blockLoading } = useQuery({
+    queryKey: ["block-info", conversationParticipantId],
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/proxy/user/v1/check-block/${conversationParticipantId}`,
+        {
+          credentials: "include",
+        },
+      );
+      const result = await res.json();
+
+      return result?.data;
+    },
+    enabled: !!conversationParticipantId,
+  });
 
   useEffect(() => {
     const onIntersection = (entries: IntersectionObserverEntry[]) => {
@@ -229,6 +246,8 @@ const ChatArea = ({ conversationId }: { conversationId: string }) => {
         <ChatInput
           conversationId={conversationId}
           receiverId={conversationParticipantId}
+          isLoading={blockLoading}
+          data={blockInfo}
         />
       </main>
 
@@ -237,6 +256,7 @@ const ChatArea = ({ conversationId }: { conversationId: string }) => {
           activeSidebarTab={activeSidebarTab}
           setActiveSidebarTab={setActiveSidebarTab}
           conversationId={conversationId}
+          data={blockInfo}
         />
       )}
 

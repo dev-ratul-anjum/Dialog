@@ -24,6 +24,7 @@ const ChatActionsSidebar = ({
   activeSidebarTab,
   setActiveSidebarTab,
   conversationId,
+  data,
 }: SidebarProps) => {
   const {
     data: info,
@@ -192,6 +193,8 @@ const ChatActionsSidebar = ({
         <ConversationActionButtons
           conversationId={conversationId}
           participantName={info?.data.participantName}
+          participantId={info?.data.participantId}
+          data={data}
         />
       </div>
     </aside>
@@ -204,4 +207,9 @@ type SidebarProps = {
   activeSidebarTab: ActiveSidebarTab;
   setActiveSidebarTab: (tab: ActiveSidebarTab) => void;
   conversationId: string;
+
+  data: {
+    isBlocked: boolean;
+    blockedByMe: boolean;
+  };
 };

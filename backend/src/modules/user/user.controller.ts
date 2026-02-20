@@ -97,12 +97,31 @@ const unblockUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// Check Block User
+const checkBlockUser = catchAsync(async (req: Request, res: Response) => {
+  const blockerId = req.user?.id;
+  const blockedId = req.params.blockedId;
+
+  if (!blockedId || typeof blockedId !== "string") {
+    throw new ApiError(400, "Required parameters not provided");
+  }
+
+  const data = await userService.checkBlockUser(blockerId!, blockedId);
+
+  return responseHandler(res, 200, {
+    success: true,
+    message: "Check Blocked successfull!",
+    data,
+  });
+});
+
 const userController = {
   registerUser,
   getUsersForAddNewChat,
   updateUserProfile,
   blockUser,
   unblockUser,
+  checkBlockUser,
 };
 
 export default userController;
