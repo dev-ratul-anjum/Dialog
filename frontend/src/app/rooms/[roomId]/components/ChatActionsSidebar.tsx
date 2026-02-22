@@ -145,7 +145,7 @@ const ChatActionsSidebar = ({
             <p className="flex-1 text-base text-[#111b21]">Starred messages</p>
             <ChevronRight className="h-4 w-4 text-[#667781]" />
           </div>
-          <div className="flex cursor-pointer items-center gap-4 border-t border-[#e9edef] p-4 hover:bg-gray-50">
+          {/* <div className="flex cursor-pointer items-center gap-4 border-t border-[#e9edef] p-4 hover:bg-gray-50">
             <Bell className="h-5 w-5 text-[#54656f]" />
             <p className="flex-1 text-base text-[#111b21]">
               Notification settings
@@ -169,11 +169,11 @@ const ChatActionsSidebar = ({
               <p className="text-xs text-[#667781]">Off</p>
             </div>
             <ChevronRight className="h-4 w-4 text-[#667781]" />
-          </div>
+          </div> */}
         </div>
 
         {/* Groups Common */}
-        <div className="mb-8 bg-white shadow-sm">
+        {/* <div className="mb-8 bg-white shadow-sm">
           <p className="px-4 pb-2 pt-4 text-sm text-[#667781]">
             3 groups in common
           </p>
@@ -187,7 +187,7 @@ const ChatActionsSidebar = ({
               <p className="text-xs text-[#667781]">Abu, +880 1540..., You</p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Block/Report/Delete */}
         <ConversationActionButtons

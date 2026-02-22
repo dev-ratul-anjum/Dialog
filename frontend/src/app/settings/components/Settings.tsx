@@ -87,7 +87,8 @@ const Settings = () => {
             </div>
           )}
         </div>
-        {[
+
+        {/* {[
           { icon: Monitor, label: "General", sub: "Startup and close" },
           {
             icon: ShieldCheck,
@@ -135,7 +136,8 @@ const Settings = () => {
               <p className="text-xs text-[#667781]">{item.sub}</p>
             </div>
           </div>
-        ))}
+        ))} */}
+
         <div
           className="flex items-center gap-5 px-6 py-4 text-red-500 hover:bg-[#f5f6f6] cursor-pointer"
           onClick={() => setIsLogoutModalOpen(true)}

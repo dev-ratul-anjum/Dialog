@@ -87,7 +87,7 @@ const HomePage = () => {
             {/* CTA Button */}
             <div className="hidden md:flex">
               <Link
-                href="/login"
+                href="/sign-up"
                 className="bg-gray-900 text-white px-5 py-2 rounded-full font-medium hover:bg-gray-800 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 Get Started
@@ -136,7 +136,7 @@ const HomePage = () => {
             </a>
             <div className="pt-4">
               <Link
-                href="/login"
+                href="/sign-up"
                 className="block w-full text-center bg-gray-900 text-white px-5 py-3 rounded-lg font-medium"
               >
                 Get Started
@@ -170,12 +170,18 @@ const HomePage = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-3.5 rounded-lg bg-green-600 text-white font-bold text-lg hover:bg-green-700 transition shadow-lg shadow-green-500/30">
-                Download for Free
-              </button>
-              <button className="px-8 py-3.5 rounded-lg bg-white text-gray-700 font-bold text-lg border border-gray-200 hover:bg-gray-50 transition">
-                View Demo
-              </button>
+              <Link
+                href="/sign-up"
+                className="px-8 py-3.5 rounded-lg bg-green-600 text-white font-bold text-lg hover:bg-green-700 transition shadow-lg shadow-green-500/30"
+              >
+                Start Your Chat
+              </Link>
+              <Link
+                href="/login"
+                className="px-8 py-3.5 rounded-lg bg-white text-gray-700 font-bold text-lg border border-gray-200 hover:bg-gray-50 transition"
+              >
+                Go Online
+              </Link>
             </div>
           </div>
 
